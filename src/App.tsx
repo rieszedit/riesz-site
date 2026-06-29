@@ -7,11 +7,14 @@ import {
   Play,
   Send,
 } from 'lucide-react'
+import type { FormEvent } from 'react'
 import { useEffect, useState } from 'react'
 import './App.css'
 
 type Lang = 'ja' | 'en'
 type Page = 'personal' | 'business'
+
+const contactEmail = 'rieszedit@gmail.com'
 
 const formEndpoints = {
   personal:
@@ -244,6 +247,29 @@ function App() {
 function getPage(): Page {
   const root = document.getElementById('root')
   return root?.dataset.page === 'business' ? 'business' : 'personal'
+}
+
+function handleFallbackSubmit(
+  event: FormEvent<HTMLFormElement>,
+  subject: string,
+) {
+  const form = event.currentTarget
+
+  if (!form.action.includes('REPLACE_')) {
+    return
+  }
+
+  event.preventDefault()
+
+  const formData = new FormData(form)
+  const body = Array.from(formData.entries())
+    .filter(([key, value]) => key !== '_gotcha' && String(value).trim() !== '')
+    .map(([key, value]) => `${key}: ${String(value)}`)
+    .join('\n')
+
+  window.location.href = `mailto:${contactEmail}?subject=${encodeURIComponent(
+    subject,
+  )}&body=${encodeURIComponent(body)}`
 }
 
 function Header({
@@ -537,6 +563,7 @@ function PersonalContact({ lang }: { lang: Lang }) {
         action={formEndpoints.personal}
         method="POST"
         className="contact-form"
+        onSubmit={(event) => handleFallbackSubmit(event, '[Riesz 個人依頼]')}
       >
         <input type="hidden" name="_subject" value="[Riesz 個人依頼]" />
         <input className="hidden-field" type="text" name="_gotcha" tabIndex={-1} />
@@ -656,6 +683,7 @@ function BusinessContact({ lang }: { lang: Lang }) {
         action={formEndpoints.business}
         method="POST"
         className="contact-form"
+        onSubmit={(event) => handleFallbackSubmit(event, '[Riesz 法人依頼]')}
       >
         <input type="hidden" name="_subject" value="[Riesz 法人依頼]" />
         <input className="hidden-field" type="text" name="_gotcha" tabIndex={-1} />
@@ -715,6 +743,9 @@ function ContactIntro({ lang, business }: { lang: Lang; business: boolean }) {
             ? '通常3日以内にご返信いたします。内容により、追加確認をお願いする場合があります。'
             : 'I usually reply within 3 business days. Follow-up questions may be needed depending on the project.'}
       </span>
+      <a className="direct-mail" href={`mailto:${contactEmail}`}>
+        {contactEmail}
+      </a>
     </div>
   )
 }
@@ -836,9 +867,9 @@ function Footer({ lang }: { lang: Lang }) {
         <a href={playlistUrl} target="_blank" rel="noreferrer">
           YouTube
         </a>
-        <a href="mailto:rieszedit@gmail.com">
+        <a href={`mailto:${contactEmail}`}>
           <Mail size={14} aria-hidden="true" />
-          rieszedit@gmail.com
+          {contactEmail}
         </a>
       </nav>
     </footer>

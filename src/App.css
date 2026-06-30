@@ -785,7 +785,7 @@ button {
   display: flex;
   align-items: center;
   gap: 9px;
-  min-height: 42px;
+  min-height: 44px;
   border: 1px solid rgba(243, 246, 239, 0.13);
   background: rgba(38, 38, 38, 0.68);
   padding: 8px 10px;
@@ -825,8 +825,17 @@ button {
 
 .hidden-field {
   position: absolute;
-  left: -9999px;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
   opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
 }
 
 .business-hero {

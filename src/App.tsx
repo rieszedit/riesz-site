@@ -505,6 +505,19 @@ function BusinessPage({ lang }: { lang: Lang }) {
   )
 }
 
+function HoneypotField() {
+  return (
+    <input
+      aria-hidden="true"
+      autoComplete="off"
+      className="hidden-field"
+      name="_gotcha"
+      tabIndex={-1}
+      type="text"
+    />
+  )
+}
+
 function Hero({ lang }: { lang: Lang }) {
   const prefersReducedMotion = usePrefersReducedMotion()
 
@@ -718,7 +731,7 @@ function PersonalContact({ lang }: { lang: Lang }) {
         onSubmit={(event) => handleContactSubmit(event, '[Riesz 個人依頼]', setSubmitStatus)}
       >
         <input type="hidden" name="_subject" value="[Riesz 個人依頼]" />
-        <input className="hidden-field" type="text" name="_gotcha" tabIndex={-1} />
+        <HoneypotField />
         <Field label={lang === 'ja' ? '名前 / 活動名' : 'Name / Artist name'} name="name" required />
         <Field label={lang === 'ja' ? 'メールアドレス' : 'Email'} name="email" type="email" required />
         <div className="form-row">
@@ -854,7 +867,7 @@ function BusinessContact({ lang }: { lang: Lang }) {
         onSubmit={(event) => handleContactSubmit(event, '[Riesz 法人依頼]', setSubmitStatus)}
       >
         <input type="hidden" name="_subject" value="[Riesz 法人依頼]" />
-        <input className="hidden-field" type="text" name="_gotcha" tabIndex={-1} />
+        <HoneypotField />
         <Field label={lang === 'ja' ? '会社名' : 'Company'} name="company" required />
         <Field label={lang === 'ja' ? '担当者名' : 'Contact person'} name="name" required />
         <Field label={lang === 'ja' ? 'メールアドレス' : 'Email'} name="email" type="email" required />

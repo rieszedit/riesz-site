@@ -340,7 +340,8 @@ function Header({
         <a href={page === 'business' ? '/#pricing' : '#pricing'}>Pricing</a>
         <a href="/business/">Business</a>
         <a className="contact-pill" href="#contact">
-          Contact <span aria-hidden="true" />
+          <span className="contact-pill__label">Contact</span>
+          <span className="contact-pill__dot" aria-hidden="true" />
         </a>
         <button
           className="language-toggle"

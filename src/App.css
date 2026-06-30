@@ -121,20 +121,56 @@ button {
 }
 
 .contact-pill {
-  gap: 9px;
+  position: relative;
+  isolation: isolate;
+  gap: 8px;
+  flex: 0 0 auto;
   min-width: 112px;
+  padding: 0 16px 0 18px;
   justify-content: center;
-  border: 1px solid rgba(243, 246, 239, 0.2) !important;
+  border: 0 !important;
   border-radius: 999px;
-  background: var(--text) !important;
+  background: transparent !important;
   color: var(--bg) !important;
 }
 
-.contact-pill span {
+.contact-pill::before {
+  position: absolute;
+  inset: 4px 0;
+  z-index: -1;
+  border: 1px solid rgba(243, 246, 239, 0.2);
+  border-radius: inherit;
+  background: var(--text);
+  content: '';
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+
+.contact-pill:hover {
+  color: var(--bg);
+}
+
+.contact-pill:hover::before {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.contact-pill__label,
+.contact-pill__dot {
+  position: relative;
+}
+
+.contact-pill__dot {
+  flex: 0 0 8px;
   width: 8px;
   height: 8px;
   border-radius: 999px;
   background: var(--accent);
+}
+
+.contact-pill:hover .contact-pill__dot {
+  background: var(--bg);
 }
 
 .language-toggle {

@@ -11,7 +11,6 @@
   --accent-soft: #e4ffa0;
   --shadow: rgba(0, 0, 0, 0.34);
   --display: 'Archivo', 'Noto Sans JP', sans-serif;
-  --logo: 'Quicksand', 'Noto Sans JP', sans-serif;
   --ui: 'Space Grotesk', 'Noto Sans JP', sans-serif;
   --body: 'Noto Sans JP', sans-serif;
 }
@@ -28,10 +27,7 @@ html {
 body {
   margin: 0;
   min-width: 320px;
-  background:
-    linear-gradient(90deg, rgba(207, 255, 100, 0.035) 1px, transparent 1px),
-    linear-gradient(180deg, #1d1d1d 0%, #1d1d1d 100%);
-  background-size: 96px 96px, auto;
+  background: #1d1d1d;
   color: var(--text);
   font-family: var(--body);
   font-size: 16px;
@@ -80,10 +76,10 @@ button {
 
 .brand-link {
   color: var(--accent);
-  font-family: var(--logo);
-  font-size: 1.18rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
+  font-family: var(--display);
+  font-size: 1.16rem;
+  font-weight: 900;
+  letter-spacing: 0;
   line-height: 1;
   text-decoration: none;
   text-transform: none;
@@ -172,16 +168,13 @@ button {
 }
 
 .hero-copy h1 {
-  width: min(100%, 25rem);
-  margin: 10px 0 0;
-  background: #050505;
+  margin: 22px 0 0;
   color: var(--text);
-  padding: 24px 30px 22px;
-  font-family: var(--logo);
-  font-size: clamp(4rem, 6.2vw, 5.7rem);
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: 0.14em;
+  font-family: var(--display);
+  font-size: clamp(4.7rem, 7.2vw, 6.8rem);
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: 0;
   text-transform: none;
 }
 
@@ -197,7 +190,7 @@ button {
 }
 
 .hero-subtitle {
-  margin: 8px 0 0;
+  margin: 18px 0 0;
   color: var(--text);
   font-family: var(--ui);
   font-size: 1.28rem;
@@ -799,10 +792,10 @@ button {
 
 .site-footer strong {
   color: var(--text);
-  font-family: var(--logo);
+  font-family: var(--display);
   font-size: 1.7rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
+  font-weight: 900;
+  letter-spacing: 0;
   line-height: 1;
   text-transform: none;
 }
@@ -897,10 +890,7 @@ button {
   }
 
   .hero-copy h1 {
-    width: min(100%, 22rem);
-    padding: 18px 22px 17px;
-    font-size: 3.45rem;
-    letter-spacing: 0.12em;
+    font-size: 4.2rem;
   }
 
   .business-hero h1 {

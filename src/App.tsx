@@ -539,6 +539,18 @@ function WorksSection({ lang }: { lang: Lang }) {
           <ArrowUpRight size={16} aria-hidden="true" />
         </a>
       </div>
+      <div className="work-tag-note">
+        <p>
+          {lang === 'ja'
+            ? 'Flagship / Standard / Hybrid は制作規模の目安であり、固定料金ではありません。'
+            : 'Flagship / Standard / Hybrid indicate production-scale references, not fixed prices.'}
+        </p>
+        <p>
+          {lang === 'ja'
+            ? 'Hybrid は、Rieszのディレクションに加えて、協力クリエイターが一部制作に参加する形式です。'
+            : 'Hybrid means a collaborator may join part of the production under Riesz’s direction.'}
+        </p>
+      </div>
       <div className="work-grid">
         {works.map((work) => (
           <article className="work-card" key={work.url}>

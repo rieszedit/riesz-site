@@ -407,6 +407,22 @@ button {
   color: var(--accent);
 }
 
+.work-tag-note {
+  max-width: 760px;
+  margin: -12px 0 30px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.work-tag-note p {
+  margin: 0;
+}
+
+.work-tag-note p + p {
+  margin-top: 4px;
+}
+
 .work-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
@@ -1000,6 +1016,11 @@ button {
 
   .section-heading a {
     margin-top: 18px;
+  }
+
+  .work-tag-note {
+    margin: -4px 0 24px;
+    font-size: 0.86rem;
   }
 
   .work-grid,

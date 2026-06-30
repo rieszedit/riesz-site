@@ -33,7 +33,8 @@ const heroWork = {
   titleEn: 'Unknown Mother Goose',
   client: '涼海ネモ / Nemo Channel',
   url: 'https://www.youtube.com/watch?v=nRDHO45n3AM',
-  image: 'https://i.ytimg.com/vi/nRDHO45n3AM/maxresdefault.jpg',
+  image: '/media/unknown-mother-goose-poster.jpg',
+  video: '/media/unknown-mother-goose-hero.mp4',
 }
 
 const works = [
@@ -249,6 +250,22 @@ function getPage(): Page {
   return root?.dataset.page === 'business' ? 'business' : 'personal'
 }
 
+function usePrefersReducedMotion() {
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const handleChange = () => setPrefersReducedMotion(mediaQuery.matches)
+
+    handleChange()
+    mediaQuery.addEventListener('change', handleChange)
+
+    return () => mediaQuery.removeEventListener('change', handleChange)
+  }, [])
+
+  return prefersReducedMotion
+}
+
 function handleFallbackSubmit(
   event: FormEvent<HTMLFormElement>,
   subject: string,
@@ -388,6 +405,8 @@ function BusinessPage({ lang }: { lang: Lang }) {
 }
 
 function Hero({ lang }: { lang: Lang }) {
+  const prefersReducedMotion = usePrefersReducedMotion()
+
   return (
     <section className="hero-section">
       <div className="hero-copy">
@@ -418,7 +437,21 @@ function Hero({ lang }: { lang: Lang }) {
         </div>
       </div>
       <div className="hero-visual" aria-label={heroWork.title}>
-        <img src={heroWork.image} alt="" />
+        {prefersReducedMotion ? (
+          <img src={heroWork.image} alt="" />
+        ) : (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            poster={heroWork.image}
+            preload="metadata"
+            aria-hidden="true"
+          >
+            <source src={heroWork.video} type="video/mp4" />
+          </video>
+        )}
         <div className="hero-visual__caption">
           <span>{lang === 'ja' ? 'Hero Work' : 'Hero Work'}</span>
           <strong>{lang === 'ja' ? heroWork.title : heroWork.titleEn}</strong>

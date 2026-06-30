@@ -13,6 +13,11 @@ dist-ssr
 output
 *.local
 
+# Local design/agent context
+PRODUCT.md
+DESIGN.md
+.impeccable/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

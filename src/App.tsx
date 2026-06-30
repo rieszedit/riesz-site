@@ -47,7 +47,7 @@ const works = [
     client: 'プロジェクトセカイ',
     clientEn: 'Project SEKAI',
     role: 'Movie / Lyric Video',
-    tags: ['Major IP', 'Lyric Video'],
+    tags: ['Flagship', 'Major IP'],
     url: 'https://www.youtube.com/watch?v=vIHCFGj_G2E',
     image: 'https://i.ytimg.com/vi/vIHCFGj_G2E/maxresdefault.jpg',
   },
@@ -57,7 +57,7 @@ const works = [
     client: 'アイドルマスター',
     clientEn: 'THE IDOLM@STER',
     role: 'Lyric Video / Direction',
-    tags: ['Major IP', 'Lyric Video'],
+    tags: ['Flagship', 'Major IP'],
     url: 'https://www.youtube.com/watch?v=DLkNQgh4Ons',
     image: 'https://i.ytimg.com/vi/DLkNQgh4Ons/maxresdefault.jpg',
   },
@@ -67,7 +67,7 @@ const works = [
     client: 'ブルーアーカイブ',
     clientEn: 'Blue Archive',
     role: 'Movie / Direction: Riesz',
-    tags: ['Corporate', 'Hybrid'],
+    tags: ['Hybrid Flagship', 'Corporate'],
     url: 'https://www.youtube.com/watch?v=Qdz7nMfg1L8',
     image: 'https://i.ytimg.com/vi/Qdz7nMfg1L8/maxresdefault.jpg',
     noteJa: 'Lyric Design: Collaborator',
@@ -82,6 +82,7 @@ const works = [
     tags: ['Flagship', 'Cover MV'],
     url: 'https://www.youtube.com/watch?v=nRDHO45n3AM',
     image: 'https://i.ytimg.com/vi/nRDHO45n3AM/maxresdefault.jpg',
+    compactTitle: true,
   },
   {
     title: 'Snow halation',
@@ -89,7 +90,7 @@ const works = [
     client: 'ミリプロ',
     clientEn: 'MillionProduction',
     role: 'Movie / Direction / Design',
-    tags: ['Group Cover', 'Cover MV'],
+    tags: ['Flagship', 'Group Cover'],
     url: 'https://youtu.be/yynYqcLJYPk',
     image: 'https://i.ytimg.com/vi/yynYqcLJYPk/maxresdefault.jpg',
   },
@@ -102,8 +103,6 @@ const works = [
     tags: ['Standard', 'Cover MV'],
     url: 'https://www.youtube.com/watch?v=_CK1kzr3myE',
     image: 'https://i.ytimg.com/vi/_CK1kzr3myE/maxresdefault.jpg',
-    noteJa: 'Riesz Main Standard / 150,000円〜',
-    noteEn: 'Riesz Main Standard / From JPY 150,000',
   },
   {
     title: '藍悼花',
@@ -111,7 +110,7 @@ const works = [
     client: '涼海ネモ / ななしいんく',
     clientEn: 'Nemo Channel / 774inc.',
     role: 'Movie / Direction / Design',
-    tags: ['Clean MV', 'Cover MV'],
+    tags: ['Standard', 'Clean MV'],
     url: 'https://www.youtube.com/watch?v=0dmBEUg7jh0',
     image: 'https://i.ytimg.com/vi/0dmBEUg7jh0/maxresdefault.jpg',
   },
@@ -121,7 +120,7 @@ const works = [
     client: '涼海ネモ / ななしいんく',
     clientEn: 'Nemo Channel / 774inc.',
     role: 'Movie / Direction / Design',
-    tags: ['Ballad', 'Cover MV'],
+    tags: ['Flagship', 'Ballad'],
     url: 'https://www.youtube.com/watch?v=Zm3ftyIGBqo',
     image: 'https://i.ytimg.com/vi/Zm3ftyIGBqo/maxresdefault.jpg',
   },
@@ -134,8 +133,6 @@ const works = [
     tags: ['Standard', 'Cover MV'],
     url: 'https://www.youtube.com/watch?v=_5w5Rfwn6jc',
     image: 'https://i.ytimg.com/vi/_5w5Rfwn6jc/sddefault.jpg',
-    noteJa: 'Riesz Main Standard / 150,000円〜',
-    noteEn: 'Riesz Main Standard / From JPY 150,000',
   },
   {
     title: 'スパークル',
@@ -143,7 +140,7 @@ const works = [
     client: 'カグラナナ',
     clientEn: 'Kagura Nana',
     role: 'Movie / Direction: Riesz',
-    tags: ['Hybrid Example', 'Cover MV'],
+    tags: ['Hybrid Standard', 'Cover MV'],
     url: 'https://www.youtube.com/watch?v=u5pwAfnnlKc',
     image: 'https://i.ytimg.com/vi/u5pwAfnnlKc/maxresdefault.jpg',
     noteJa: 'Lyric Design: ななし',
@@ -552,7 +549,11 @@ function WorksSection({ lang }: { lang: Lang }) {
               </span>
             </a>
             <div className="work-card__body">
-              <h3>{lang === 'ja' ? work.title : work.titleEn}</h3>
+              <h3
+                className={work.compactTitle ? 'work-title work-title--compact' : 'work-title'}
+              >
+                {lang === 'ja' ? work.title : work.titleEn}
+              </h3>
               <p>{lang === 'ja' ? work.client : work.clientEn}</p>
               <p className="work-role">{work.role}</p>
               {work.noteJa && (

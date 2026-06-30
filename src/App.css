@@ -472,6 +472,12 @@ button {
   line-height: 1.18;
 }
 
+.work-card h3.work-title--compact {
+  white-space: nowrap;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+
 .work-card p,
 .plan-card p,
 .light-plan p {
@@ -922,6 +928,11 @@ button {
 
   .contact-intro {
     position: static;
+  }
+
+  .work-card h3.work-title--compact {
+    font-size: 1.25rem;
+    letter-spacing: 0;
   }
 }
 

@@ -13,6 +13,7 @@ import './App.css'
 
 type Lang = 'ja' | 'en'
 type Page = 'personal' | 'business'
+type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error'
 
 const contactEmail = 'rieszedit@gmail.com'
 
@@ -266,27 +267,56 @@ function usePrefersReducedMotion() {
   return prefersReducedMotion
 }
 
-function handleFallbackSubmit(
+async function handleContactSubmit(
   event: FormEvent<HTMLFormElement>,
   subject: string,
+  setStatus: (status: SubmitStatus) => void,
 ) {
   const form = event.currentTarget
 
-  if (!form.action.includes('REPLACE_')) {
+  event.preventDefault()
+  setStatus('submitting')
+
+  if (form.action.includes('REPLACE_')) {
+    const formData = new FormData(form)
+    const body = Array.from(formData.entries())
+      .filter(([key, value]) => key !== '_gotcha' && String(value).trim() !== '')
+      .map(([key, value]) => `${key}: ${String(value)}`)
+      .join('\n')
+
+    window.location.href = `mailto:${contactEmail}?subject=${encodeURIComponent(
+      subject,
+    )}&body=${encodeURIComponent(body)}`
+    setStatus('idle')
     return
   }
 
-  event.preventDefault()
-
   const formData = new FormData(form)
-  const body = Array.from(formData.entries())
-    .filter(([key, value]) => key !== '_gotcha' && String(value).trim() !== '')
-    .map(([key, value]) => `${key}: ${String(value)}`)
-    .join('\n')
 
-  window.location.href = `mailto:${contactEmail}?subject=${encodeURIComponent(
-    subject,
-  )}&body=${encodeURIComponent(body)}`
+  if (String(formData.get('_gotcha') ?? '').trim() !== '') {
+    setStatus('success')
+    form.reset()
+    return
+  }
+
+  try {
+    const response = await fetch(form.action, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+      },
+      body: formData,
+    })
+
+    if (!response.ok) {
+      throw new Error(`Form submission failed: ${response.status}`)
+    }
+
+    setStatus('success')
+    form.reset()
+  } catch {
+    setStatus('error')
+  }
 }
 
 function Header({
@@ -589,6 +619,8 @@ function NotesSection({ lang }: { lang: Lang }) {
 }
 
 function PersonalContact({ lang }: { lang: Lang }) {
+  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle')
+
   return (
     <section className="contact-section" id="contact">
       <ContactIntro lang={lang} business={false} />
@@ -596,7 +628,7 @@ function PersonalContact({ lang }: { lang: Lang }) {
         action={formEndpoints.personal}
         method="POST"
         className="contact-form"
-        onSubmit={(event) => handleFallbackSubmit(event, '[Riesz 個人依頼]')}
+        onSubmit={(event) => handleContactSubmit(event, '[Riesz 個人依頼]', setSubmitStatus)}
       >
         <input type="hidden" name="_subject" value="[Riesz 個人依頼]" />
         <input className="hidden-field" type="text" name="_gotcha" tabIndex={-1} />
@@ -699,16 +731,25 @@ function PersonalContact({ lang }: { lang: Lang }) {
           required
         />
         <TextArea label={lang === 'ja' ? 'その他' : 'Additional notes'} name="message" />
-        <button className="submit-button" type="submit">
+        <button className="submit-button" type="submit" disabled={submitStatus === 'submitting'}>
           <Mail size={17} aria-hidden="true" />
-          {lang === 'ja' ? '見積もり相談を送る' : 'Send Estimate Request'}
+          {submitStatus === 'submitting'
+            ? lang === 'ja'
+              ? '送信中'
+              : 'Sending'
+            : lang === 'ja'
+              ? '見積もり相談を送る'
+              : 'Send Estimate Request'}
         </button>
+        <ContactSubmitStatus lang={lang} status={submitStatus} />
       </form>
     </section>
   )
 }
 
 function BusinessContact({ lang }: { lang: Lang }) {
+  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle')
+
   return (
     <section className="contact-section" id="contact">
       <ContactIntro lang={lang} business />
@@ -716,7 +757,7 @@ function BusinessContact({ lang }: { lang: Lang }) {
         action={formEndpoints.business}
         method="POST"
         className="contact-form"
-        onSubmit={(event) => handleFallbackSubmit(event, '[Riesz 法人依頼]')}
+        onSubmit={(event) => handleContactSubmit(event, '[Riesz 法人依頼]', setSubmitStatus)}
       >
         <input type="hidden" name="_subject" value="[Riesz 法人依頼]" />
         <input className="hidden-field" type="text" name="_gotcha" tabIndex={-1} />
@@ -753,12 +794,48 @@ function BusinessContact({ lang }: { lang: Lang }) {
           options={lang === 'ja' ? ['希望しない', '希望する（+200,000円〜）', '相談したい'] : ['Not needed', 'Requested (+JPY 200,000+)', 'Need to discuss']}
         />
         <TextArea label={lang === 'ja' ? 'その他' : 'Additional notes'} name="message" />
-        <button className="submit-button" type="submit">
+        <button className="submit-button" type="submit" disabled={submitStatus === 'submitting'}>
           <Mail size={17} aria-hidden="true" />
-          {lang === 'ja' ? '法人案件を相談する' : 'Send Business Inquiry'}
+          {submitStatus === 'submitting'
+            ? lang === 'ja'
+              ? '送信中'
+              : 'Sending'
+            : lang === 'ja'
+              ? '法人案件を相談する'
+              : 'Send Business Inquiry'}
         </button>
+        <ContactSubmitStatus lang={lang} status={submitStatus} />
       </form>
     </section>
+  )
+}
+
+function ContactSubmitStatus({ lang, status }: { lang: Lang; status: SubmitStatus }) {
+  if (status === 'idle') {
+    return null
+  }
+
+  const message =
+    status === 'submitting'
+      ? lang === 'ja'
+        ? '送信しています。画面を閉じずにお待ちください。'
+        : 'Sending. Please keep this page open.'
+      : status === 'success'
+        ? lang === 'ja'
+          ? '送信しました。内容を確認し、通常3日以内に返信します。'
+          : 'Sent. I will review the details and reply within 3 business days.'
+        : lang === 'ja'
+          ? `送信できませんでした。お手数ですが ${contactEmail} へ直接ご連絡ください。`
+          : `Could not send the form. Please contact ${contactEmail} directly.`
+
+  return (
+    <p
+      className={`form-status form-status--${status}`}
+      role={status === 'error' ? 'alert' : 'status'}
+      aria-live="polite"
+    >
+      {message}
+    </p>
   )
 }
 

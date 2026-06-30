@@ -1,16 +1,17 @@
 :root {
-  --bg: #070c0a;
-  --bg-raised: #0c1410;
-  --surface: #111916;
-  --surface-strong: #151f19;
-  --text: #f3f6ef;
-  --text-muted: #a9b5a9;
-  --line: #2b362e;
-  --line-strong: #3d4b40;
+  --bg: #1d1d1d;
+  --bg-raised: #222222;
+  --surface: #262626;
+  --surface-strong: #2e2e2e;
+  --text: #f2f2f2;
+  --text-muted: #c5c5c5;
+  --line: #3b3b3b;
+  --line-strong: #555555;
   --accent: #cfff64;
   --accent-soft: #e4ffa0;
   --shadow: rgba(0, 0, 0, 0.34);
   --display: 'Archivo', 'Noto Sans JP', sans-serif;
+  --logo: 'Quicksand', 'Noto Sans JP', sans-serif;
   --ui: 'Space Grotesk', 'Noto Sans JP', sans-serif;
   --body: 'Noto Sans JP', sans-serif;
 }
@@ -28,8 +29,8 @@ body {
   margin: 0;
   min-width: 320px;
   background:
-    linear-gradient(90deg, rgba(207, 255, 100, 0.04) 1px, transparent 1px),
-    linear-gradient(180deg, #070c0a 0%, #0b1110 46%, #070c0a 100%);
+    linear-gradient(90deg, rgba(207, 255, 100, 0.035) 1px, transparent 1px),
+    linear-gradient(180deg, #1d1d1d 0%, #1d1d1d 100%);
   background-size: 96px 96px, auto;
   color: var(--text);
   font-family: var(--body);
@@ -73,18 +74,19 @@ button {
   min-height: 76px;
   padding: 0 40px;
   border-bottom: 1px solid rgba(243, 246, 239, 0.12);
-  background: rgba(7, 12, 10, 0.9);
+  background: rgba(29, 29, 29, 0.92);
   backdrop-filter: blur(18px);
 }
 
 .brand-link {
   color: var(--accent);
-  font-family: var(--display);
-  font-size: 1.16rem;
-  font-weight: 900;
+  font-family: var(--logo);
+  font-size: 1.18rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   line-height: 1;
   text-decoration: none;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .nav-links {
@@ -154,7 +156,7 @@ button {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 80px 40px 80px 72px;
+  padding: 88px 48px 88px 72px;
 }
 
 .eyebrow {
@@ -169,7 +171,20 @@ button {
   line-height: 1.2;
 }
 
-.hero-copy h1,
+.hero-copy h1 {
+  width: min(100%, 25rem);
+  margin: 10px 0 0;
+  background: #050505;
+  color: var(--text);
+  padding: 24px 30px 22px;
+  font-family: var(--logo);
+  font-size: clamp(4rem, 6.2vw, 5.7rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.14em;
+  text-transform: none;
+}
+
 .business-hero h1 {
   margin: 22px 0 0;
   color: var(--text);
@@ -182,7 +197,7 @@ button {
 }
 
 .hero-subtitle {
-  margin: 18px 0 0;
+  margin: 8px 0 0;
   color: var(--text);
   font-family: var(--ui);
   font-size: 1.28rem;
@@ -260,8 +275,8 @@ button {
   z-index: 1;
   content: '';
   background:
-    linear-gradient(180deg, rgba(7, 12, 10, 0.06) 0%, rgba(7, 12, 10, 0.7) 100%),
-    linear-gradient(110deg, rgba(7, 12, 10, 0.6), transparent 58%);
+    linear-gradient(180deg, rgba(29, 29, 29, 0.06) 0%, rgba(29, 29, 29, 0.68) 100%),
+    linear-gradient(110deg, rgba(29, 29, 29, 0.54), transparent 58%);
   pointer-events: none;
 }
 
@@ -284,7 +299,7 @@ button {
   display: grid;
   gap: 5px;
   border: 1px solid rgba(243, 246, 239, 0.16);
-  background: rgba(12, 20, 16, 0.78);
+  background: rgba(20, 20, 20, 0.82);
   padding: 18px;
   backdrop-filter: blur(16px);
 }
@@ -371,7 +386,7 @@ button {
   display: block;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  background: #0c1410;
+  background: var(--bg-raised);
 }
 
 .work-card img {
@@ -397,7 +412,7 @@ button {
   min-height: 32px;
   border: 1px solid rgba(243, 246, 239, 0.16);
   border-radius: 999px;
-  background: rgba(7, 12, 10, 0.82);
+  background: rgba(20, 20, 20, 0.84);
   color: var(--text);
   padding: 0 12px;
   font-family: var(--ui);
@@ -551,7 +566,7 @@ button {
 .flow-list li {
   min-height: 132px;
   border-right: 1px solid rgba(243, 246, 239, 0.13);
-  background: rgba(17, 25, 22, 0.72);
+  background: rgba(38, 38, 38, 0.78);
   padding: 18px;
   color: var(--text);
   font-family: var(--ui);
@@ -600,7 +615,7 @@ button {
   top: 110px;
   align-self: start;
   border: 1px solid rgba(243, 246, 239, 0.13);
-  background: #050806;
+  background: #151515;
   padding: 32px;
 }
 
@@ -677,7 +692,7 @@ button {
   min-height: 48px;
   border: 1px solid rgba(243, 246, 239, 0.16);
   border-radius: 0;
-  background: rgba(17, 25, 22, 0.82);
+  background: rgba(38, 38, 38, 0.88);
   color: var(--text);
   padding: 12px 14px;
   outline: none;
@@ -711,7 +726,7 @@ button {
   gap: 9px;
   min-height: 42px;
   border: 1px solid rgba(243, 246, 239, 0.13);
-  background: rgba(17, 25, 22, 0.62);
+  background: rgba(38, 38, 38, 0.68);
   padding: 8px 10px;
   color: var(--text-muted);
 }
@@ -742,7 +757,7 @@ button {
   padding: 120px 40px 96px;
   border-bottom: 1px solid rgba(243, 246, 239, 0.12);
   background:
-    linear-gradient(130deg, rgba(7, 12, 10, 0.62), rgba(7, 12, 10, 0.92)),
+    linear-gradient(130deg, rgba(29, 29, 29, 0.62), rgba(29, 29, 29, 0.92)),
     url('https://i.ytimg.com/vi/DLkNQgh4Ons/maxresdefault.jpg') center/cover;
 }
 
@@ -757,7 +772,7 @@ button {
 
 .business-panel {
   padding: 26px;
-  background: rgba(17, 25, 22, 0.84);
+  background: rgba(31, 31, 31, 0.88);
   backdrop-filter: blur(16px);
 }
 
@@ -784,10 +799,12 @@ button {
 
 .site-footer strong {
   color: var(--text);
-  font-family: var(--display);
+  font-family: var(--logo);
   font-size: 1.7rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
   line-height: 1;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .site-footer nav {
@@ -819,7 +836,7 @@ button {
   }
 
   .hero-copy {
-    padding: 72px 32px 48px;
+    padding: 72px 32px 54px;
   }
 
   .hero-visual {
@@ -880,7 +897,10 @@ button {
   }
 
   .hero-copy h1 {
-    font-size: 4.2rem;
+    width: min(100%, 22rem);
+    padding: 18px 22px 17px;
+    font-size: 3.45rem;
+    letter-spacing: 0.12em;
   }
 
   .business-hero h1 {

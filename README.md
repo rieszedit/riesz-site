@@ -44,6 +44,16 @@ VITE_FORMSPREE_BUSINESS_ENDPOINT=https://formspree.io/f/your-business-id
 
 Until those endpoints are configured, the rendered forms use placeholder Formspree URLs.
 
+## Analytics Setup
+
+Create a Cloudflare Web Analytics site for `riesz.org`, then set this GitHub Actions repository variable:
+
+```text
+VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN=your-cloudflare-web-analytics-token
+```
+
+The build only injects the Cloudflare beacon when this variable is set.
+
 ## Domain
 
 The `public/CNAME` file contains:

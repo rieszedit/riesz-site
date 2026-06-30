@@ -36,6 +36,7 @@ jobs:
         env:
           VITE_FORMSPREE_PERSONAL_ENDPOINT: ${{ vars.VITE_FORMSPREE_PERSONAL_ENDPOINT }}
           VITE_FORMSPREE_BUSINESS_ENDPOINT: ${{ vars.VITE_FORMSPREE_BUSINESS_ENDPOINT }}
+          VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN: ${{ vars.VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v5

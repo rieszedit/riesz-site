@@ -28,6 +28,9 @@ const formEndpoints = {
     'https://formspree.io/f/REPLACE_BUSINESS_ID',
 }
 
+const cloudflareAnalyticsToken =
+  import.meta.env.VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN?.trim() ?? ''
+
 const playlistUrl =
   'https://www.youtube.com/playlist?list=PL10vMJnTRJMe59Xb0q8_BVjmGqbzMVpL9'
 
@@ -274,11 +277,43 @@ function App() {
 
   return (
     <div className="site-shell">
+      <AnalyticsBeacon />
       <Header lang={lang} setLang={setLang} page={page} />
       {isBusiness ? <BusinessPage lang={lang} /> : <PersonalPage lang={lang} />}
       <Footer lang={lang} />
     </div>
   )
+}
+
+function AnalyticsBeacon() {
+  useEffect(() => {
+    if (!import.meta.env.PROD || !cloudflareAnalyticsToken) {
+      return
+    }
+
+    const existing = document.querySelector<HTMLScriptElement>(
+      'script[data-riesz-analytics="cloudflare"]',
+    )
+
+    if (existing) {
+      return
+    }
+
+    const script = document.createElement('script')
+    script.defer = true
+    script.src = 'https://static.cloudflareinsights.com/beacon.min.js'
+    script.dataset.rieszAnalytics = 'cloudflare'
+    script.dataset.cfBeacon = JSON.stringify({
+      token: cloudflareAnalyticsToken,
+    })
+    document.head.appendChild(script)
+
+    return () => {
+      script.remove()
+    }
+  }, [])
+
+  return null
 }
 
 function getPage(): Page {

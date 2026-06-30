@@ -393,7 +393,7 @@ function Hero({ lang }: { lang: Lang }) {
       <div className="hero-copy">
         <div className="eyebrow">
           <Play size={15} aria-hidden="true" />
-          {lang === 'ja' ? 'Selected MV Direction' : 'Selected MV Direction'}
+          Music Video Commissions
         </div>
         <h1>Riesz</h1>
         <p className="hero-subtitle">

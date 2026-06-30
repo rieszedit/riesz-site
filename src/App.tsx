@@ -16,6 +16,8 @@ type Page = 'personal' | 'business'
 type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error'
 
 const contactEmail = 'rieszedit@gmail.com'
+const xUrl = 'https://x.com/Riesz_edit'
+const boothUrl = 'https://rieszedit.booth.pm/'
 
 const formEndpoints = {
   personal:
@@ -639,6 +641,7 @@ function PersonalContact({ lang }: { lang: Lang }) {
           <Field label="X ID" name="x_id" />
         </div>
         <Select
+          lang={lang}
           label={lang === 'ja' ? '依頼内容' : 'Request type'}
           name="request_type"
           options={
@@ -649,6 +652,7 @@ function PersonalContact({ lang }: { lang: Lang }) {
           required
         />
         <Select
+          lang={lang}
           label={lang === 'ja' ? '希望プラン' : 'Preferred plan'}
           name="preferred_plan"
           options={[
@@ -666,6 +670,7 @@ function PersonalContact({ lang }: { lang: Lang }) {
           required
         />
         <Select
+          lang={lang}
           label={lang === 'ja' ? '予算帯' : 'Budget range'}
           name="budget"
           options={
@@ -687,6 +692,7 @@ function PersonalContact({ lang }: { lang: Lang }) {
           <Field label={lang === 'ja' ? '公開予定日' : 'Planned release date'} name="release_date" />
         </div>
         <Select
+          lang={lang}
           label={lang === 'ja' ? '楽曲尺' : 'Song length'}
           name="song_length"
           options={['〜1分', '1分〜2分', '2分〜3分', '3分〜4分', '4分以上', lang === 'ja' ? '未定' : 'TBD']}
@@ -709,6 +715,7 @@ function PersonalContact({ lang }: { lang: Lang }) {
         />
         <Field label={lang === 'ja' ? '素材URL' : 'Material URL'} name="material_url" />
         <Select
+          lang={lang}
           label={lang === 'ja' ? '制作体制の希望' : 'Production setup'}
           name="production_setup"
           options={
@@ -719,12 +726,14 @@ function PersonalContact({ lang }: { lang: Lang }) {
           required
         />
         <Select
+          lang={lang}
           label={lang === 'ja' ? '実績掲載の可否' : 'Portfolio visibility'}
           name="portfolio_visibility"
           options={lang === 'ja' ? ['掲載可', '公開後なら掲載可', '掲載不可（+100,000円〜）', '相談したい'] : ['Allowed', 'Allowed after release', 'Private (+JPY 100,000+)', 'Need to discuss']}
           required
         />
         <Select
+          lang={lang}
           label={lang === 'ja' ? 'プロジェクトファイル納品' : 'Project file delivery'}
           name="project_file"
           options={lang === 'ja' ? ['希望しない', '希望する（+200,000円〜）', '相談したい'] : ['Not needed', 'Requested (+JPY 200,000+)', 'Need to discuss']}
@@ -773,12 +782,14 @@ function BusinessContact({ lang }: { lang: Lang }) {
           <Field label={lang === 'ja' ? '公開予定日' : 'Planned release date'} name="release_date" required />
         </div>
         <Select
+          lang={lang}
           label={lang === 'ja' ? '実績掲載の可否' : 'Portfolio visibility'}
           name="portfolio_visibility"
           options={lang === 'ja' ? ['掲載可', '公開後なら掲載可', '掲載不可', '相談したい'] : ['Allowed', 'Allowed after release', 'Private', 'Need to discuss']}
           required
         />
         <Select
+          lang={lang}
           label={lang === 'ja' ? 'NDA / 契約書の有無' : 'NDA / Contract'}
           name="nda_contract"
           options={lang === 'ja' ? ['あり', 'なし', '相談したい'] : ['Required', 'Not required', 'Need to discuss']}
@@ -789,6 +800,7 @@ function BusinessContact({ lang }: { lang: Lang }) {
         <Field label={lang === 'ja' ? '予算感' : 'Budget range'} name="budget" />
         <Field label={lang === 'ja' ? '素材URL' : 'Material URL'} name="material_url" />
         <Select
+          lang={lang}
           label={lang === 'ja' ? 'プロジェクトファイル納品' : 'Project file delivery'}
           name="project_file"
           options={lang === 'ja' ? ['希望しない', '希望する（+200,000円〜）', '相談したい'] : ['Not needed', 'Requested (+JPY 200,000+)', 'Need to discuss']}
@@ -822,8 +834,8 @@ function ContactSubmitStatus({ lang, status }: { lang: Lang; status: SubmitStatu
         : 'Sending. Please keep this page open.'
       : status === 'success'
         ? lang === 'ja'
-          ? '送信しました。内容を確認し、通常3日以内に返信します。'
-          : 'Sent. I will review the details and reply within 3 business days.'
+          ? '相談を受け付けました。内容を確認し、通常3日以内に返信します。'
+          : 'Request received. I will review the details and reply within 3 business days.'
         : lang === 'ja'
           ? `送信できませんでした。お手数ですが ${contactEmail} へ直接ご連絡ください。`
           : `Could not send the form. Please contact ${contactEmail} directly.`
@@ -906,11 +918,13 @@ function TextArea({
 }
 
 function Select({
+  lang,
   label,
   name,
   options,
   required = false,
 }: {
+  lang: Lang
   label: string
   name: string
   options: string[]
@@ -924,7 +938,7 @@ function Select({
       </span>
       <select name={name} required={required} defaultValue="">
         <option value="" disabled>
-          Select
+          {lang === 'ja' ? '選択してください' : 'Select'}
         </option>
         {options.map((option) => (
           <option value={option} key={option}>
@@ -976,6 +990,12 @@ function Footer({ lang }: { lang: Lang }) {
         <a href="/business/">Business</a>
         <a href={playlistUrl} target="_blank" rel="noreferrer">
           YouTube
+        </a>
+        <a href={xUrl} target="_blank" rel="noreferrer">
+          X
+        </a>
+        <a href={boothUrl} target="_blank" rel="noreferrer">
+          BOOTH
         </a>
         <a href={`mailto:${contactEmail}`}>
           <Mail size={14} aria-hidden="true" />

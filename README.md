@@ -54,6 +54,21 @@ VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN=your-cloudflare-web-analytics-token
 
 The build only injects the Cloudflare beacon when this variable is set.
 
+## Search Console Setup
+
+The site publishes:
+
+- `https://riesz.org/sitemap.xml`
+- `https://riesz.org/robots.txt`
+
+Recommended Search Console setup:
+
+1. Add a Domain property for `riesz.org`.
+2. Verify ownership with a DNS TXT record in Cloudflare.
+3. Submit `https://riesz.org/sitemap.xml` in the Sitemaps report.
+
+If using URL prefix verification instead, get the HTML tag or HTML file from Search Console and add it to the site before verifying.
+
 ## Domain
 
 The `public/CNAME` file contains:

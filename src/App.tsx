@@ -626,6 +626,18 @@ function WorksSection({ lang }: { lang: Lang }) {
                   <span key={tag}>{tag}</span>
                 ))}
               </div>
+              <a
+                className="work-contact-link"
+                href="#contact"
+                aria-label={
+                  lang === 'ja'
+                    ? `${work.title}に近い規模で相談する`
+                    : `Request a project similar to ${work.titleEn}`
+                }
+              >
+                {lang === 'ja' ? 'この規模で相談する' : 'Request similar style'}
+                <ArrowUpRight size={14} aria-hidden="true" />
+              </a>
             </div>
           </article>
         ))}

@@ -7,13 +7,34 @@ import {
   Play,
   Send,
 } from 'lucide-react'
-import type { FormEvent } from 'react'
+import type { ChangeEvent, FormEvent } from 'react'
 import { useEffect, useState } from 'react'
 import './App.css'
 
 type Lang = 'ja' | 'en'
 type Page = 'personal' | 'business'
 type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error'
+type WorkItem = {
+  title: string
+  titleEn: string
+  client: string
+  clientEn: string
+  role: string
+  tags: string[]
+  url: string
+  image: string
+  compactTitle?: boolean
+  noteJa?: string
+  noteEn?: string
+}
+type WorkContactPreset = {
+  title: string
+  titleEn: string
+  plan: string
+  budgetJa: string
+  budgetEn: string
+  referenceUrl: string
+}
 
 const contactEmail = 'rieszedit@gmail.com'
 const xUrl = 'https://x.com/Riesz_edit'
@@ -43,7 +64,7 @@ const heroWork = {
   video: '/media/unknown-mother-goose-hero.mp4',
 }
 
-const works = [
+const works: WorkItem[] = [
   {
     title: '神っぽいな',
     titleEn: 'God-ish',
@@ -150,6 +171,70 @@ const works = [
     noteEn: 'Lyric Design: Nanashi',
   },
 ]
+
+const budgetRanges = [
+  { ja: '5万円〜10万円', en: 'JPY 50,000-100,000' },
+  { ja: '10万円〜15万円', en: 'JPY 100,000-150,000' },
+  { ja: '15万円〜20万円', en: 'JPY 150,000-200,000' },
+  { ja: '20万円〜25万円', en: 'JPY 200,000-250,000' },
+  { ja: '25万円以上', en: 'JPY 250,000+' },
+  { ja: '相談したい', en: 'Need advice' },
+]
+
+function createWorkContactPreset(work: WorkItem): WorkContactPreset {
+  const scalePreset = getWorkScalePreset(work.tags)
+
+  return {
+    title: work.title,
+    titleEn: work.titleEn,
+    referenceUrl: work.url,
+    ...scalePreset,
+  }
+}
+
+function getWorkScalePreset(tags: string[]) {
+  if (tags.includes('Hybrid Flagship')) {
+    return {
+      plan: 'Hybrid Flagship',
+      budgetJa: '20万円〜25万円',
+      budgetEn: 'JPY 200,000-250,000',
+    }
+  }
+
+  if (tags.includes('Hybrid Standard')) {
+    return {
+      plan: 'Hybrid Standard',
+      budgetJa: '10万円〜15万円',
+      budgetEn: 'JPY 100,000-150,000',
+    }
+  }
+
+  if (tags.includes('Standard')) {
+    return {
+      plan: 'Riesz Main Standard',
+      budgetJa: '15万円〜20万円',
+      budgetEn: 'JPY 150,000-200,000',
+    }
+  }
+
+  return {
+    plan: 'Riesz Main Flagship',
+    budgetJa: '25万円以上',
+    budgetEn: 'JPY 250,000+',
+  }
+}
+
+function translateBudgetValue(value: string, lang: Lang) {
+  const budgetRange = budgetRanges.find(
+    (range) => range.ja === value || range.en === value,
+  )
+
+  if (!budgetRange) {
+    return value
+  }
+
+  return lang === 'ja' ? budgetRange.ja : budgetRange.en
+}
 
 const personalPlans = [
   {
@@ -341,6 +426,7 @@ async function handleContactSubmit(
   event: FormEvent<HTMLFormElement>,
   subject: string,
   setStatus: (status: SubmitStatus) => void,
+  onSuccess?: () => void,
 ) {
   const form = event.currentTarget
 
@@ -366,6 +452,7 @@ async function handleContactSubmit(
   if (String(formData.get('_gotcha') ?? '').trim() !== '') {
     setStatus('success')
     form.reset()
+    onSuccess?.()
     return
   }
 
@@ -384,6 +471,7 @@ async function handleContactSubmit(
 
     setStatus('success')
     form.reset()
+    onSuccess?.()
   } catch {
     setStatus('error')
   }
@@ -426,10 +514,13 @@ function Header({
 }
 
 function PersonalPage({ lang }: { lang: Lang }) {
+  const [workContactPreset, setWorkContactPreset] =
+    useState<WorkContactPreset | null>(null)
+
   return (
     <main>
       <Hero lang={lang} />
-      <WorksSection lang={lang} />
+      <WorksSection lang={lang} onWorkContactSelect={setWorkContactPreset} />
       <PricingSection lang={lang} />
       <FlowSection
         lang={lang}
@@ -438,7 +529,11 @@ function PersonalPage({ lang }: { lang: Lang }) {
         steps={lang === 'ja' ? personalFlowJa : personalFlowEn}
       />
       <NotesSection lang={lang} />
-      <PersonalContact lang={lang} />
+      <PersonalContact
+        lang={lang}
+        workContactPreset={workContactPreset}
+        onClearWorkContactPreset={() => setWorkContactPreset(null)}
+      />
     </main>
   )
 }
@@ -576,7 +671,13 @@ function Hero({ lang }: { lang: Lang }) {
   )
 }
 
-function WorksSection({ lang }: { lang: Lang }) {
+function WorksSection({
+  lang,
+  onWorkContactSelect,
+}: {
+  lang: Lang
+  onWorkContactSelect: (preset: WorkContactPreset) => void
+}) {
   return (
     <section className="content-section works-section" id="works">
       <div className="section-heading">
@@ -629,6 +730,7 @@ function WorksSection({ lang }: { lang: Lang }) {
               <a
                 className="work-contact-link"
                 href="#contact"
+                onClick={() => onWorkContactSelect(createWorkContactPreset(work))}
                 aria-label={
                   lang === 'ja'
                     ? `${work.title}に近い規模で相談する`
@@ -730,8 +832,37 @@ function NotesSection({ lang }: { lang: Lang }) {
   )
 }
 
-function PersonalContact({ lang }: { lang: Lang }) {
+function PersonalContact({
+  lang,
+  workContactPreset,
+  onClearWorkContactPreset,
+}: {
+  lang: Lang
+  workContactPreset: WorkContactPreset | null
+  onClearWorkContactPreset: () => void
+}) {
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle')
+  const [preferredPlan, setPreferredPlan] = useState('')
+  const [budget, setBudget] = useState('')
+  const [references, setReferences] = useState('')
+
+  useEffect(() => {
+    if (!workContactPreset) {
+      return
+    }
+
+    setPreferredPlan(workContactPreset.plan)
+    setBudget(lang === 'ja' ? workContactPreset.budgetJa : workContactPreset.budgetEn)
+    setReferences(workContactPreset.referenceUrl)
+    setSubmitStatus('idle')
+  }, [lang, workContactPreset])
+
+  const resetControlledFields = () => {
+    setPreferredPlan('')
+    setBudget('')
+    setReferences('')
+    onClearWorkContactPreset()
+  }
 
   return (
     <section className="contact-section" id="contact">
@@ -740,10 +871,30 @@ function PersonalContact({ lang }: { lang: Lang }) {
         action={formEndpoints.personal}
         method="POST"
         className="contact-form"
-        onSubmit={(event) => handleContactSubmit(event, '[Riesz 個人依頼]', setSubmitStatus)}
+        onSubmit={(event) =>
+          handleContactSubmit(
+            event,
+            '[Riesz 個人依頼]',
+            setSubmitStatus,
+            resetControlledFields,
+          )}
       >
         <input type="hidden" name="_subject" value="[Riesz 個人依頼]" />
         <HoneypotField />
+        {workContactPreset && (
+          <div className="contact-preset" role="status" aria-live="polite">
+            <p>
+              {lang === 'ja'
+                ? `「${workContactPreset.title}」に近い規模で相談中`
+                : `Using ${workContactPreset.titleEn} as the reference`}
+            </p>
+            <span>
+              {lang === 'ja'
+                ? '希望プラン・予算帯・参考映像URLを入力しました。内容は自由に変更できます。'
+                : 'Plan, budget range, and reference URL are prefilled. You can edit them freely.'}
+            </span>
+          </div>
+        )}
         <Field label={lang === 'ja' ? '名前 / 活動名' : 'Name / Artist name'} name="name" required />
         <Field label={lang === 'ja' ? 'メールアドレス' : 'Email'} name="email" type="email" required />
         <div className="form-row">
@@ -778,24 +929,17 @@ function PersonalContact({ lang }: { lang: Lang }) {
             lang === 'ja' ? '相談して決めたい' : 'Need advice',
           ]}
           required
+          value={preferredPlan}
+          onValueChange={setPreferredPlan}
         />
         <Select
           lang={lang}
           label={lang === 'ja' ? '予算帯' : 'Budget range'}
           name="budget"
-          options={
-            lang === 'ja'
-              ? ['5万円〜10万円', '10万円〜15万円', '15万円〜20万円', '20万円〜25万円', '25万円以上', '相談したい']
-              : [
-                  'JPY 50,000-100,000',
-                  'JPY 100,000-150,000',
-                  'JPY 150,000-200,000',
-                  'JPY 200,000-250,000',
-                  'JPY 250,000+',
-                  'Need advice',
-                ]
-          }
+          options={budgetRanges.map((range) => (lang === 'ja' ? range.ja : range.en))}
           required
+          value={translateBudgetValue(budget, lang)}
+          onValueChange={setBudget}
         />
         <div className="form-row">
           <Field label={lang === 'ja' ? '希望納期' : 'Preferred delivery date'} name="delivery_date" required />
@@ -822,6 +966,8 @@ function PersonalContact({ lang }: { lang: Lang }) {
           name="references"
           required
           helper={lang === 'ja' ? '未定の場合は「未定」とご記入ください。' : 'If undecided, enter TBD.'}
+          value={references}
+          onValueChange={setReferences}
         />
         <Field label={lang === 'ja' ? '素材URL' : 'Material URL'} name="material_url" />
         <Select
@@ -988,20 +1134,33 @@ function Field({
   type = 'text',
   required = false,
   helper,
+  value,
+  onValueChange,
 }: {
   label: string
   name: string
   type?: string
   required?: boolean
   helper?: string
+  value?: string
+  onValueChange?: (value: string) => void
 }) {
+  const inputProps =
+    value === undefined
+      ? {}
+      : {
+          value,
+          onChange: (event: ChangeEvent<HTMLInputElement>) =>
+            onValueChange?.(event.target.value),
+        }
+
   return (
     <label className="field">
       <span>
         {label}
         {required && <b> *</b>}
       </span>
-      <input name={name} type={type} required={required} />
+      <input name={name} type={type} required={required} {...inputProps} />
       {helper && <small>{helper}</small>}
     </label>
   )
@@ -1033,20 +1192,33 @@ function Select({
   name,
   options,
   required = false,
+  value,
+  onValueChange,
 }: {
   lang: Lang
   label: string
   name: string
   options: string[]
   required?: boolean
+  value?: string
+  onValueChange?: (value: string) => void
 }) {
+  const selectProps =
+    value === undefined
+      ? { defaultValue: '' }
+      : {
+          value,
+          onChange: (event: ChangeEvent<HTMLSelectElement>) =>
+            onValueChange?.(event.target.value),
+        }
+
   return (
     <label className="field">
       <span>
         {label}
         {required && <b> *</b>}
       </span>
-      <select name={name} required={required} defaultValue="">
+      <select name={name} required={required} {...selectProps}>
         <option value="" disabled>
           {lang === 'ja' ? '選択してください' : 'Select'}
         </option>

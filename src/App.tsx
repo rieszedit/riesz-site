@@ -98,6 +98,18 @@ const works: WorkItem[] = [
     noteEn: 'Lyric Design: Collaborator',
   },
   {
+    title: 'あいしていたのに',
+    titleEn: 'Aishite Ita Noni',
+    client: '叶 / Kanae Channel',
+    clientEn: 'Kanae Channel',
+    role: 'Movie: Riesz',
+    tags: ['Hybrid Flagship', 'Cover MV'],
+    url: 'https://www.youtube.com/watch?v=QWItOSj0bEU',
+    image: 'https://i.ytimg.com/vi/QWItOSj0bEU/maxresdefault.jpg',
+    noteJa: 'Lyric Design: ななし',
+    noteEn: 'Lyric Design: Nanashi',
+  },
+  {
     title: 'アンノウン・マザーグース',
     titleEn: 'Unknown Mother Goose',
     client: '涼海ネモ / ななしいんく',

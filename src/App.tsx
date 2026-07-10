@@ -208,8 +208,8 @@ function getWorkScalePreset(tags: string[]) {
   if (tags.includes('Hybrid Flagship')) {
     return {
       plan: 'Hybrid Flagship',
-      budgetJa: '20万円〜25万円',
-      budgetEn: 'JPY 200,000-250,000',
+      budgetJa: '25万円以上',
+      budgetEn: 'JPY 250,000+',
     }
   }
 
@@ -248,55 +248,135 @@ function translateBudgetValue(value: string, lang: Lang) {
   return lang === 'ja' ? budgetRange.ja : budgetRange.en
 }
 
-const personalPlans = [
+const featuredPlans = [
   {
-    name: 'Riesz Main',
+    name: 'Riesz Main Standard',
+    label: 'Balance',
+    labelEn: 'Balance',
     price: '150,000円〜',
     priceEn: 'From JPY 150,000',
     description:
-      'Riesz本人がメイン制作を担当するプランです。演出・編集・デザイン・仕上げまで、Rieszの作風を重視したMV制作に向いています。',
+      'Riesz本人が映像・演出・デザイン・仕上げまで担当する標準プランです。歌ってみたMV、オリジナルMV、綺麗め・シンプル寄りの映像に向いています。',
     descriptionEn:
-      'A Riesz-led plan for clients who want the core direction, editing, design, and finishing handled by Riesz.',
-    tiers: ['Standard 150,000円〜', 'Flagship 250,000円〜'],
-    tiersEn: ['Standard from JPY 150,000', 'Flagship from JPY 250,000'],
-  },
-  {
-    name: 'Hybrid',
-    price: '100,000円〜',
-    priceEn: 'From JPY 100,000',
-    description:
-      'リリックデザインなど一部工程を、信頼できる協力クリエイターが担当します。Rieszが全体のディレクション・演出・編集・仕上げを行います。',
-    descriptionEn:
-      'A trusted collaborator handles selected parts such as lyric design, while Riesz directs, edits, and finishes the work.',
-    tiers: ['Entry 100,000円〜', 'Standard 130,000円〜', 'Flagship 200,000円〜'],
-    tiersEn: [
-      'Entry from JPY 100,000',
-      'Standard from JPY 130,000',
-      'Flagship from JPY 200,000',
+      'A standard Riesz-led plan covering direction, editing, design, and finishing. Best for cover MVs, original MVs, and clean visual styles.',
+    points: ['MVとして十分な完成度がほしい', 'Rieszの作風でまとめてほしい', '予算と品質のバランスを取りたい'],
+    pointsEn: [
+      'You want a complete MV-quality result',
+      'You want the work shaped in Riesz’s visual style',
+      'You want a balance of budget and quality',
     ],
   },
   {
-    name: 'Partner',
+    name: 'Riesz Main Flagship',
+    label: 'High Density',
+    labelEn: 'High Density',
+    price: '250,000円〜',
+    priceEn: 'From JPY 250,000',
+    description:
+      'Riesz本人が全体の演出密度、画面設計、編集、デザインを高い水準で作り込むプランです。大型企画、重要な公開、強い印象を残したいMVに向いています。',
+    descriptionEn:
+      'A high-density Riesz-led plan for stronger direction, screen design, editing, and visual development. Best for major releases or work meant to leave a strong impression.',
+    points: ['代表作にしたい', '情報量や演出密度を高めたい', '作品全体の世界観を強く作り込みたい'],
+    pointsEn: [
+      'You want this to become a representative work',
+      'You want higher visual density and direction',
+      'You want a stronger overall world and tone',
+    ],
+  },
+  {
+    name: 'Hybrid Flagship',
+    label: 'Lyric Focus',
+    labelEn: 'Lyric Focus',
+    price: '250,000円〜',
+    priceEn: 'From JPY 250,000',
+    description:
+      'Rieszが映像・ディレクション・仕上げを担当し、リリックデザインは信頼できる協力クリエイターが担当する高密度プランです。文字演出や歌詞表現を強く見せたいMVに向いています。',
+    descriptionEn:
+      'A high-density hybrid plan where Riesz handles movie direction and finishing while a trusted collaborator leads lyric design. Best for lyric-heavy or text-driven MVs.',
+    points: ['リリックデザインの完成度を上げたい', '文字量や情報量が多い楽曲', 'Rieszの映像設計と専門パートナーの文字表現を両立したい'],
+    pointsEn: [
+      'You want stronger lyric design',
+      'The song has a lot of lyrics or visual information',
+      'You want Riesz’s movie direction plus specialist text expression',
+    ],
+  },
+]
+
+const secondaryPlans = [
+  {
+    name: 'Hybrid Standard',
+    price: '130,000円〜',
+    priceEn: 'From JPY 130,000',
+    description:
+      'Rieszのディレクションのもと、一部工程に協力クリエイターが参加するプランです。リリック周りを強化しつつ、制作規模を抑えたい場合に向いています。',
+    descriptionEn:
+      'A hybrid plan where a collaborator joins part of the production under Riesz’s direction. Best for strengthening lyric-related work while keeping the scope smaller.',
+  },
+  {
+    name: 'Partner Plan',
     price: '50,000円〜',
     priceEn: 'From JPY 50,000',
     description:
-      '協力クリエイターの作風を活かして制作するプランです。Rieszは主にディレクション・品質確認を担当します。',
+      '協力クリエイターが主に制作し、Rieszはディレクション・品質確認を担当するプランです。Riesz本人メインの制作ではありませんが、予算を抑えたい場合や短納期の相談に向いています。',
     descriptionEn:
-      'A collaborator-led plan. Riesz mainly handles direction and quality review while the partner creator leads the visual expression.',
-    tiers: ['Light 50,000円〜', 'Standard 80,000円〜', 'Premium 100,000円〜'],
-    tiersEn: [
-      'Light from JPY 50,000',
-      'Standard from JPY 80,000',
-      'Premium from JPY 100,000',
-    ],
+      'A collaborator-led plan where Riesz mainly handles direction and quality review. Best for lower budgets or faster timelines when a Riesz-led production is not required.',
+  },
+  {
+    name: 'Short / Light Plan',
+    price: '50,000円〜100,000円目安',
+    priceEn: 'Around JPY 50,000-100,000',
+    description:
+      'Shorts、ティザー、部分制作、簡易編集などの軽量プランです。内容に応じて個別にお見積もりします。',
+    descriptionEn:
+      'A light plan for shorts, teasers, partial production, and simpler edits. Final estimates depend on the requested scope.',
+  },
+]
+
+const planComparisonRows = [
+  {
+    plan: 'Riesz Main Standard',
+    lead: 'Riesz',
+    density: '標準',
+    bestFor: '歌ってみたMV / 綺麗めMV / 通常規模のMV',
+    leadEn: 'Riesz',
+    densityEn: 'Standard',
+    bestForEn: 'Cover MVs / clean MVs / regular-scope MVs',
+  },
+  {
+    plan: 'Riesz Main Flagship',
+    lead: 'Riesz',
+    density: '高',
+    bestFor: '代表作 / 大型企画 / 情報量の多いMV',
+    leadEn: 'Riesz',
+    densityEn: 'High',
+    bestForEn: 'Representative works / major releases / dense MVs',
+  },
+  {
+    plan: 'Hybrid Flagship',
+    lead: 'Riesz + 協力クリエイター',
+    density: '高',
+    bestFor: 'リリック重視 / 文字演出重視 / 高密度MV',
+    leadEn: 'Riesz + collaborator',
+    densityEn: 'High',
+    bestForEn: 'Lyric-focused / text-driven / high-density MVs',
+  },
+  {
+    plan: 'Partner Plan',
+    lead: '協力クリエイター',
+    density: '内容により調整',
+    bestFor: '予算重視 / 短納期 / Riesz監修での制作',
+    leadEn: 'Collaborator-led',
+    densityEn: 'Adjusted by scope',
+    bestForEn: 'Budget-focused / faster timelines / Riesz-supervised work',
   },
 ]
 
 const notesJa = [
   '表示価格は税別です。',
   '個人のお客様は全額前払いです。入金確認後にスケジュールを確保します。',
-  '軽微な修正は2回まで無料です。大幅な方向転換・構成変更は追加料金となります。',
-  '4分以上の楽曲、短納期、納品後修正は内容に応じて別途お見積もりとなります。',
+  '制作中の軽微な修正・調整は、常識の範囲内で対応いたします。',
+  '大幅な方向転換、構成変更、追加制作、納品後修正は内容に応じて別途お見積もりとなります。',
+  '4分以上の楽曲、短納期、特殊な素材対応は内容に応じて別途お見積もりとなります。',
   '実績非公開をご希望の場合は +100,000円〜 となります。',
   'プロジェクトファイル納品をご希望の場合は +200,000円〜 となります。',
   'プロジェクトファイルを納品した場合、クライアント様の責任範囲において編集・改変・関係者への共有・二次配布が可能です。',
@@ -307,8 +387,9 @@ const notesJa = [
 const notesEn = [
   'Prices are listed before tax.',
   'Individual commissions require full advance payment. The production schedule is reserved after payment is confirmed.',
-  'Two minor revision rounds are included. Major direction or structure changes require an additional estimate.',
-  'Songs longer than four minutes, rush timelines, and post-delivery revisions may require an additional estimate.',
+  'Minor revisions and adjustments during production are handled within a reasonable scope.',
+  'Major direction changes, structural changes, additional production, and post-delivery revisions require an additional estimate.',
+  'Songs longer than four minutes, rush timelines, and special material handling may require an additional estimate.',
   'Private / non-public portfolio use starts from an additional JPY 100,000.',
   'Project file delivery starts from an additional JPY 200,000.',
   'When project files are delivered, the client may edit, modify, share with relevant parties, and redistribute them within the client responsibility scope.',
@@ -767,32 +848,68 @@ function PricingSection({ lang }: { lang: Lang }) {
         <p>{lang === 'ja' ? 'Price Guide' : 'Price Guide'}</p>
         <h2>{lang === 'ja' ? '制作プラン' : 'Plans'}</h2>
       </div>
-      <div className="plan-grid">
-        {personalPlans.map((plan) => (
+      <p className="pricing-lead">
+        {lang === 'ja'
+          ? 'まずは制作体制と作り込み量でお選びください。最終金額は楽曲尺、素材状況、納期、表現量によってお見積もりします。'
+          : 'Choose by production setup and visual density first. Final estimates depend on song length, materials, timeline, and expression volume.'}
+      </p>
+      <div className="plan-grid plan-grid--featured">
+        {featuredPlans.map((plan) => (
           <article className="plan-card" key={plan.name}>
+            <span className="plan-card__label">
+              {lang === 'ja' ? plan.label : plan.labelEn}
+            </span>
             <div className="plan-card__top">
               <h3>{plan.name}</h3>
               <strong>{lang === 'ja' ? plan.price : plan.priceEn}</strong>
             </div>
             <p>{lang === 'ja' ? plan.description : plan.descriptionEn}</p>
             <ul>
-              {(lang === 'ja' ? plan.tiers : plan.tiersEn).map((tier) => (
-                <li key={tier}>
+              {(lang === 'ja' ? plan.points : plan.pointsEn).map((point) => (
+                <li key={point}>
                   <Check size={15} aria-hidden="true" />
-                  {tier}
+                  {point}
                 </li>
               ))}
             </ul>
           </article>
         ))}
       </div>
-      <div className="light-plan">
-        <span>{lang === 'ja' ? 'Short / Light Plan' : 'Short / Light Plan'}</span>
-        <p>
-          {lang === 'ja'
-            ? 'Shorts、ティザー、部分制作、簡易編集などは 50,000円〜100,000円目安でご相談可能です。'
-            : 'Shorts, teasers, partial production, and light editing are available around JPY 50,000 to 100,000 depending on scope.'}
-        </p>
+      <div className="secondary-plan-grid">
+        {secondaryPlans.map((plan) => (
+          <article className="secondary-plan" key={plan.name}>
+            <div>
+              <h3>{plan.name}</h3>
+              <strong>{lang === 'ja' ? plan.price : plan.priceEn}</strong>
+            </div>
+            <p>{lang === 'ja' ? plan.description : plan.descriptionEn}</p>
+          </article>
+        ))}
+      </div>
+      <div className="pricing-note">
+        {lang === 'ja'
+          ? 'Hybridは「安くするための外注」ではなく、Rieszのディレクションに加えて、得意分野を持つ協力クリエイターが参加する制作体制です。特にリリックデザインや文字演出を重視する場合に向いています。'
+          : 'Hybrid is not outsourcing simply to lower the price. It is a production setup where a trusted collaborator with a specific strength joins under Riesz’s direction, especially when lyric design or text expression matters.'}
+      </div>
+      <div
+        className="plan-comparison"
+        role="table"
+        aria-label={lang === 'ja' ? 'プラン比較' : 'Plan comparison'}
+      >
+        <div className="plan-comparison__row plan-comparison__row--head" role="row">
+          <span role="columnheader">{lang === 'ja' ? 'プラン' : 'Plan'}</span>
+          <span role="columnheader">{lang === 'ja' ? '制作主導' : 'Lead'}</span>
+          <span role="columnheader">{lang === 'ja' ? '作り込み量' : 'Density'}</span>
+          <span role="columnheader">{lang === 'ja' ? '向いている依頼' : 'Best for'}</span>
+        </div>
+        {planComparisonRows.map((row) => (
+          <div className="plan-comparison__row" role="row" key={row.plan}>
+            <span role="cell">{row.plan}</span>
+            <span role="cell">{lang === 'ja' ? row.lead : row.leadEn}</span>
+            <span role="cell">{lang === 'ja' ? row.density : row.densityEn}</span>
+            <span role="cell">{lang === 'ja' ? row.bestFor : row.bestForEn}</span>
+          </div>
+        ))}
       </div>
     </section>
   )
@@ -931,12 +1048,9 @@ function PersonalContact({
           options={[
             'Riesz Main Standard',
             'Riesz Main Flagship',
-            'Hybrid Entry',
             'Hybrid Standard',
             'Hybrid Flagship',
-            'Partner Light',
-            'Partner Standard',
-            'Partner Premium',
+            'Partner Plan',
             'Short / Light',
             lang === 'ja' ? '相談して決めたい' : 'Need advice',
           ]}

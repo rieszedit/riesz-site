@@ -66,4 +66,4 @@
 - [x] Run `npm run build` and confirm a production bundle is emitted.
 - [x] Inspect desktop pricing, mobile pricing, and desktop/mobile business form screenshots.
 - [x] Verify the pricing and business pages have no horizontal document overflow.
-- [ ] Commit and push the verified changes to `main`, then confirm the GitHub Pages deployment succeeds.
+- [x] Commit and push the verified changes to `main`, then confirm the GitHub Pages deployment succeeds.

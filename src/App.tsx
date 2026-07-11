@@ -18,7 +18,7 @@ import {
   pricingRoutes,
   supportPlans,
 } from './commission-content'
-import { works } from './portfolio-content'
+import { businessWorks, works } from './portfolio-content'
 import type { WorkItem } from './portfolio-content'
 
 type Lang = 'ja' | 'en'
@@ -412,6 +412,7 @@ function BusinessPage({ lang }: { lang: Lang }) {
         </div>
       </section>
 
+      <BusinessExperienceSection lang={lang} />
       <FlowSection
         lang={lang}
         titleJa="法人案件の流れ"
@@ -420,6 +421,70 @@ function BusinessPage({ lang }: { lang: Lang }) {
       />
       <BusinessContact lang={lang} />
     </main>
+  )
+}
+
+function BusinessExperienceSection({ lang }: { lang: Lang }) {
+  const isJapanese = lang === 'ja'
+
+  return (
+    <section
+      className="content-section business-work-section"
+      aria-labelledby="business-work-title"
+    >
+      <div className="section-heading">
+        <p>Selected Corporate Work</p>
+        <h2 id="business-work-title">
+          {isJapanese ? '法人・大型IPの公開実績' : 'Public Corporate and Major-IP Work'}
+        </h2>
+      </div>
+      <p className="business-work-lead">
+        {isJapanese
+          ? '公開可能な実績のうち、法人・大型IP案件で担当した範囲を掲載しています。各作品から公開映像をご確認いただけます。'
+          : 'A selection of public corporate and major-IP projects, with Riesz’s disclosed production scope for each work.'}
+      </p>
+      <div className="business-work-list">
+        {businessWorks.map((work, index) => {
+          const title = isJapanese ? work.title : work.titleEn
+          const client = isJapanese ? work.client : work.clientEn
+          const note = isJapanese ? work.noteJa : work.noteEn
+          const linkLabel = isJapanese
+            ? `${work.title}の公開映像を見る`
+            : `Watch the public video for ${work.titleEn}`
+
+          return (
+            <article className="business-work-row" key={work.url}>
+              <img src={work.image} alt="" loading="lazy" />
+              <div className="business-work-row__identity">
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <h3>{title}</h3>
+                <p>{client}</p>
+              </div>
+              <div className="business-work-row__scope">
+                <span>{isJapanese ? '担当範囲' : 'Production Scope'}</span>
+                <p>{work.role}</p>
+                {note && <small>{note}</small>}
+                <div className="tag-list">
+                  {work.tags.map((tag) => (
+                    <span key={tag}>{tag}</span>
+                  ))}
+                </div>
+              </div>
+              <a
+                className="business-work-row__link"
+                href={work.url}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={linkLabel}
+                title={linkLabel}
+              >
+                <ArrowUpRight size={18} aria-hidden="true" />
+              </a>
+            </article>
+          )
+        })}
+      </div>
+    </section>
   )
 }
 

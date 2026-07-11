@@ -549,6 +549,104 @@ button {
   color: var(--accent);
 }
 
+.business-work-lead {
+  max-width: 760px;
+  margin: -12px 0 30px;
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+
+.business-work-list {
+  border-top: 1px solid rgba(243, 246, 239, 0.16);
+}
+
+.business-work-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.62fr) minmax(0, 1fr) minmax(220px, 0.72fr) 44px;
+  gap: 24px;
+  align-items: center;
+  min-width: 0;
+  border-bottom: 1px solid rgba(243, 246, 239, 0.16);
+  padding: 22px 0;
+  transition: background-color 180ms ease;
+}
+
+.business-work-row:hover {
+  background: rgba(243, 246, 239, 0.025);
+}
+
+.business-work-row > img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: var(--bg-raised);
+  object-fit: cover;
+}
+
+.business-work-row__identity,
+.business-work-row__scope {
+  min-width: 0;
+}
+
+.business-work-row__identity > span,
+.business-work-row__scope > span {
+  color: var(--accent);
+  font-family: var(--ui);
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.business-work-row__identity h3 {
+  margin: 8px 0 0;
+  color: var(--text);
+  font-family: var(--display);
+  font-size: 1.42rem;
+  font-weight: 900;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.business-work-row__identity p,
+.business-work-row__scope p,
+.business-work-row__scope small {
+  display: block;
+  margin: 8px 0 0;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  line-height: 1.65;
+}
+
+.business-work-row__scope p {
+  color: var(--text);
+  font-family: var(--ui);
+  font-weight: 800;
+}
+
+.business-work-row__scope small {
+  color: var(--accent-soft);
+}
+
+.business-work-row__scope .tag-list {
+  margin-top: 10px;
+}
+
+.business-work-row__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(243, 246, 239, 0.18);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.business-work-row__link:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .pricing-lead {
   max-width: 820px;
   margin: -12px 0 30px;
@@ -1280,6 +1378,20 @@ button {
   .work-tag-note {
     margin: -4px 0 24px;
     font-size: 0.86rem;
+  }
+
+  .business-work-lead {
+    margin: -4px 0 24px;
+  }
+
+  .business-work-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 20px 0;
+  }
+
+  .business-work-row__link {
+    justify-self: start;
   }
 
   .work-grid,

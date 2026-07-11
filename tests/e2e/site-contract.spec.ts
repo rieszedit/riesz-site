@@ -107,12 +107,64 @@ test('personal form preserves its submission contract and portfolio preset', asy
     'https://www.youtube.com/watch?v=vIHCFGj_G2E',
   )
 
-  await page.getByRole('button', { name: 'Switch language' }).click()
+  await page.getByRole('button', { name: /EN/ }).click()
   await expect(form.locator('[name="preferred_plan"]')).toHaveValue('Riesz Main Flagship')
-  await expect(form.locator('[name="budget"]')).toHaveValue('JPY 250,000+')
+  await expect(form.locator('[name="budget"]')).toHaveValue('25万円以上')
   await expect(form.locator('[name="references"]')).toHaveValue(
     'https://www.youtube.com/watch?v=vIHCFGj_G2E',
   )
+})
+
+test('language changes preserve personal form selections and checkboxes', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
+  const form = page.locator('form.contact-form')
+
+  await form.locator('select[name="request_type"]').selectOption('歌ってみたMV')
+  await form.locator('select[name="preferred_plan"]').selectOption('相談して決めたい')
+  await form
+    .locator('select[name="production_setup"]')
+    .selectOption('一部協力クリエイター参加可')
+  await form.locator('input[name="materials"][value="音源あり"]').check()
+
+  await page.getByRole('button', { name: /EN/ }).click()
+
+  await expect(form.locator('select[name="request_type"]')).toHaveValue('歌ってみたMV')
+  await expect(form.locator('select[name="preferred_plan"]')).toHaveValue('相談して決めたい')
+  await expect(form.locator('select[name="production_setup"]')).toHaveValue(
+    '一部協力クリエイター参加可',
+  )
+  await expect(form.locator('input[name="materials"][value="音源あり"]')).toBeChecked()
+})
+
+test('language preference survives navigation between personal and business pages', async ({
+  page,
+}) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
+  await page.getByRole('button', { name: /EN/ }).click()
+  await page
+    .getByLabel('Primary navigation')
+    .getByRole('link', { name: 'Business', exact: true })
+    .click()
+
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+  await expect(
+    page.getByRole('heading', { name: 'Business and Corporate Projects' }),
+  ).toBeVisible()
+
+  await page.getByRole('link', { name: 'Riesz home' }).click()
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en')
+  await expect(
+    page.getByRole('heading', { name: 'Riesz', exact: true }),
+  ).toBeVisible()
+})
+
+test('visible interaction labels are included in accessible names', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
+
+  await expect(page.getByRole('button', { name: /EN/ })).toBeVisible()
+  await expect(
+    page.getByRole('link', { name: /^この規模で相談する: 神っぽいな$/ }),
+  ).toBeVisible()
 })
 
 test('business form preserves its submission contract and select values', async ({ page }) => {

@@ -18,10 +18,28 @@ import {
   pricingRoutes,
   supportPlans,
 } from './commission-content'
+import {
+  budgetOptions,
+  businessPortfolioOptions,
+  materialOptions,
+  ndaOptions,
+  personalPortfolioOptions,
+  personalRequestTypeOptions,
+  personalSetupOptions,
+  preferredPlanOptions,
+  projectFileOptions,
+  songLengthOptions,
+} from './form-options'
+import type { LocalizedOption } from './form-options'
+import {
+  readBrowserLanguagePreference,
+  writeBrowserLanguagePreference,
+} from './language-preference'
+import type { Language } from './language-preference'
 import { businessWorks, works } from './portfolio-content'
 import type { WorkItem } from './portfolio-content'
 
-type Lang = 'ja' | 'en'
+type Lang = Language
 type Page = 'personal' | 'business'
 type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error'
 type WorkContactPreset = {
@@ -60,15 +78,6 @@ const heroWork = {
   image: '/media/unknown-mother-goose-poster.jpg',
   video: '/media/unknown-mother-goose-hero.mp4',
 }
-
-const budgetRanges = [
-  { ja: '5万円〜10万円', en: 'JPY 50,000-100,000' },
-  { ja: '10万円〜15万円', en: 'JPY 100,000-150,000' },
-  { ja: '15万円〜20万円', en: 'JPY 150,000-200,000' },
-  { ja: '20万円〜25万円', en: 'JPY 200,000-250,000' },
-  { ja: '25万円以上', en: 'JPY 250,000+' },
-  { ja: '相談したい', en: 'Need advice' },
-]
 
 function createWorkContactPreset(work: WorkItem): WorkContactPreset {
   const scalePreset = getWorkScalePreset(work.tags)
@@ -113,18 +122,6 @@ function getWorkScalePreset(tags: string[]) {
   }
 }
 
-function translateBudgetValue(value: string, lang: Lang) {
-  const budgetRange = budgetRanges.find(
-    (range) => range.ja === value || range.en === value,
-  )
-
-  if (!budgetRange) {
-    return value
-  }
-
-  return lang === 'ja' ? budgetRange.ja : budgetRange.en
-}
-
 const personalFlowJa = [
   'お問い合わせ',
   '内容確認・お見積もり',
@@ -167,10 +164,11 @@ const businessFlowEn = [
 
 function App() {
   const page = getPage()
-  const [lang, setLang] = useState<Lang>('ja')
+  const [lang, setLang] = useState<Lang>(readBrowserLanguagePreference)
   const isBusiness = page === 'business'
 
   useEffect(() => {
+    writeBrowserLanguagePreference(lang)
     document.documentElement.lang = lang
     document.title = isBusiness
       ? lang === 'ja'
@@ -307,6 +305,8 @@ function Header({
   setLang: (lang: Lang) => void
   page: Page
 }) {
+  const destinationLanguage = lang === 'ja' ? 'EN' : 'JP'
+
   return (
     <header className="site-header">
       <a className="brand-link" href="/" aria-label="Riesz home">
@@ -324,10 +324,10 @@ function Header({
           className="language-toggle"
           type="button"
           onClick={() => setLang(lang === 'ja' ? 'en' : 'ja')}
-          aria-label="Switch language"
+          aria-label={`Switch language to ${destinationLanguage}`}
         >
           <Languages size={16} aria-hidden="true" />
-          {lang === 'ja' ? 'EN' : 'JP'}
+          {destinationLanguage}
         </button>
       </nav>
     </header>
@@ -619,11 +619,9 @@ function WorksSection({
                 className="work-contact-link"
                 href="#contact"
                 onClick={() => onWorkContactSelect(createWorkContactPreset(work))}
-                aria-label={
-                  lang === 'ja'
-                    ? `${work.title}に近い規模で相談する`
-                    : `Request a project similar to ${work.titleEn}`
-                }
+                aria-label={`${
+                  lang === 'ja' ? 'この規模で相談する' : 'Request similar style'
+                }: ${lang === 'ja' ? work.title : work.titleEn}`}
               >
                 {lang === 'ja' ? 'この規模で相談する' : 'Request similar style'}
                 <ArrowUpRight size={14} aria-hidden="true" />
@@ -839,10 +837,10 @@ function PersonalContact({
     }
 
     setPreferredPlan(workContactPreset.plan)
-    setBudget(lang === 'ja' ? workContactPreset.budgetJa : workContactPreset.budgetEn)
+    setBudget(workContactPreset.budgetJa)
     setReferences(workContactPreset.referenceUrl)
     setSubmitStatus('idle')
-  }, [lang, workContactPreset])
+  }, [workContactPreset])
 
   const resetControlledFields = () => {
     setPreferredPlan('')
@@ -906,26 +904,14 @@ function PersonalContact({
             lang={lang}
             label={lang === 'ja' ? '依頼内容' : 'Request type'}
             name="request_type"
-            options={
-              lang === 'ja'
-                ? ['オリジナルMV', '歌ってみたMV', 'Shorts / 短尺動画', 'Lyric Video', 'その他']
-                : ['Original MV', 'Cover MV', 'Shorts / Short video', 'Lyric Video', 'Other']
-            }
+            options={personalRequestTypeOptions}
             required
           />
           <Select
             lang={lang}
             label={lang === 'ja' ? '希望プラン' : 'Preferred plan'}
             name="preferred_plan"
-            options={[
-              'Riesz Main Standard',
-              'Riesz Main Flagship',
-              'Hybrid Standard',
-              'Hybrid Flagship',
-              'Partner Plan',
-              'Short / Light',
-              lang === 'ja' ? '相談して決めたい' : 'Need advice',
-            ]}
+            options={preferredPlanOptions}
             required
             value={preferredPlan}
             onValueChange={setPreferredPlan}
@@ -934,9 +920,9 @@ function PersonalContact({
             lang={lang}
             label={lang === 'ja' ? '予算帯' : 'Budget range'}
             name="budget"
-            options={budgetRanges.map((range) => (lang === 'ja' ? range.ja : range.en))}
+            options={budgetOptions}
             required
-            value={translateBudgetValue(budget, lang)}
+            value={budget}
             onValueChange={setBudget}
           />
         </FormSection>
@@ -955,17 +941,14 @@ function PersonalContact({
             lang={lang}
             label={lang === 'ja' ? '楽曲尺' : 'Song length'}
             name="song_length"
-            options={['〜1分', '1分〜2分', '2分〜3分', '3分〜4分', '4分以上', lang === 'ja' ? '未定' : 'TBD']}
+            options={songLengthOptions}
             required
           />
           <CheckboxGroup
+            lang={lang}
             label={lang === 'ja' ? '素材状況' : 'Available materials'}
             name="materials"
-            options={
-              lang === 'ja'
-                ? ['音源あり', '歌詞あり', 'イラストあり', 'イラスト差分あり', 'ロゴあり', '背景素材あり', 'まだ未定']
-                : ['Audio ready', 'Lyrics ready', 'Illustration ready', 'Illustration variations ready', 'Logo ready', 'Background ready', 'TBD']
-            }
+            options={materialOptions}
           />
           <Field
             label={lang === 'ja' ? '参考映像URL' : 'Reference video URL'}
@@ -988,25 +971,21 @@ function PersonalContact({
             lang={lang}
             label={lang === 'ja' ? '制作体制の希望' : 'Production setup'}
             name="production_setup"
-            options={
-              lang === 'ja'
-                ? ['Riesz本人メインの制作を希望', '一部協力クリエイター参加可', 'Partner Planも相談可', '内容を見て相談したい']
-                : ['Riesz-led production preferred', 'Collaborator support is acceptable', 'Partner Plan is acceptable', 'Need advice after review']
-            }
+            options={personalSetupOptions}
             required
           />
           <Select
             lang={lang}
             label={lang === 'ja' ? '実績掲載の可否' : 'Portfolio visibility'}
             name="portfolio_visibility"
-            options={lang === 'ja' ? ['掲載可', '公開後なら掲載可', '掲載不可（+100,000円〜）', '相談したい'] : ['Allowed', 'Allowed after release', 'Private (+JPY 100,000+)', 'Need to discuss']}
+            options={personalPortfolioOptions}
             required
           />
           <Select
             lang={lang}
             label={lang === 'ja' ? 'プロジェクトファイル納品' : 'Project file delivery'}
             name="project_file"
-            options={lang === 'ja' ? ['希望しない', '希望する（+200,000円〜）', '相談したい'] : ['Not needed', 'Requested (+JPY 200,000+)', 'Need to discuss']}
+            options={projectFileOptions}
             required
           />
           <TextArea label={lang === 'ja' ? 'その他' : 'Additional notes'} name="message" />
@@ -1098,14 +1077,14 @@ function BusinessContact({ lang }: { lang: Lang }) {
               lang={lang}
               label={lang === 'ja' ? '実績掲載の可否' : 'Portfolio visibility'}
               name="portfolio_visibility"
-              options={lang === 'ja' ? ['掲載可', '公開後なら掲載可', '掲載不可', '相談したい'] : ['Allowed', 'Allowed after release', 'Private', 'Need to discuss']}
+              options={businessPortfolioOptions}
               required
             />
             <Select
               lang={lang}
               label={lang === 'ja' ? 'NDA / 契約書の有無' : 'NDA / Contract'}
               name="nda_contract"
-              options={lang === 'ja' ? ['あり', 'なし', '相談したい'] : ['Required', 'Not required', 'Need to discuss']}
+              options={ndaOptions}
               required
             />
           </div>
@@ -1117,11 +1096,7 @@ function BusinessContact({ lang }: { lang: Lang }) {
                 : 'Collaborator participation'
             }
             name="collaborator_participation"
-            options={
-              lang === 'ja'
-                ? corporateCollaboratorOptions.ja
-                : corporateCollaboratorOptions.en
-            }
+            options={corporateCollaboratorOptions}
             helper={
               lang === 'ja'
                 ? corporateCollaboratorHelper.ja
@@ -1134,7 +1109,7 @@ function BusinessContact({ lang }: { lang: Lang }) {
             lang={lang}
             label={lang === 'ja' ? 'プロジェクトファイル納品' : 'Project file delivery'}
             name="project_file"
-            options={lang === 'ja' ? ['希望しない', '希望する（+200,000円〜）', '相談したい'] : ['Not needed', 'Requested (+JPY 200,000+)', 'Need to discuss']}
+            options={projectFileOptions}
           />
           <TextArea label={lang === 'ja' ? 'その他' : 'Additional notes'} name="message" />
         </FormSection>
@@ -1304,7 +1279,7 @@ function Select({
   lang: Lang
   label: string
   name: string
-  options: string[]
+  options: LocalizedOption[]
   required?: boolean
   helper?: string
   value?: string
@@ -1330,8 +1305,8 @@ function Select({
           {lang === 'ja' ? '選択してください' : 'Select'}
         </option>
         {options.map((option) => (
-          <option value={option} key={option}>
-            {option}
+          <option value={option.value} key={option.value}>
+            {option[lang]}
           </option>
         ))}
       </select>
@@ -1341,22 +1316,24 @@ function Select({
 }
 
 function CheckboxGroup({
+  lang,
   label,
   name,
   options,
 }: {
+  lang: Lang
   label: string
   name: string
-  options: string[]
+  options: LocalizedOption[]
 }) {
   return (
     <fieldset className="checkbox-group">
       <legend>{label}</legend>
       <div>
         {options.map((option) => (
-          <label key={option}>
-            <input type="checkbox" name={name} value={option} />
-            <span>{option}</span>
+          <label key={option.value}>
+            <input type="checkbox" name={name} value={option.value} />
+            <span>{option[lang]}</span>
           </label>
         ))}
       </div>

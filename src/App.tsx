@@ -7,7 +7,7 @@ import {
   Play,
   Send,
 } from 'lucide-react'
-import type { ChangeEvent, FormEvent } from 'react'
+import type { ChangeEvent, FormEvent, ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import './App.css'
 import {
@@ -882,104 +882,135 @@ function PersonalContact({
             </span>
           </div>
         )}
-        <Field label={lang === 'ja' ? '名前 / 活動名' : 'Name / Artist name'} name="name" required />
-        <Field label={lang === 'ja' ? 'メールアドレス' : 'Email'} name="email" type="email" required />
-        <div className="form-row">
-          <Field label="Discord ID" name="discord" />
-          <Field label="X ID" name="x_id" />
-        </div>
-        <Select
-          lang={lang}
-          label={lang === 'ja' ? '依頼内容' : 'Request type'}
-          name="request_type"
-          options={
-            lang === 'ja'
-              ? ['オリジナルMV', '歌ってみたMV', 'Shorts / 短尺動画', 'Lyric Video', 'その他']
-              : ['Original MV', 'Cover MV', 'Shorts / Short video', 'Lyric Video', 'Other']
-          }
-          required
-        />
-        <Select
-          lang={lang}
-          label={lang === 'ja' ? '希望プラン' : 'Preferred plan'}
-          name="preferred_plan"
-          options={[
-            'Riesz Main Standard',
-            'Riesz Main Flagship',
-            'Hybrid Standard',
-            'Hybrid Flagship',
-            'Partner Plan',
-            'Short / Light',
-            lang === 'ja' ? '相談して決めたい' : 'Need advice',
-          ]}
-          required
-          value={preferredPlan}
-          onValueChange={setPreferredPlan}
-        />
-        <Select
-          lang={lang}
-          label={lang === 'ja' ? '予算帯' : 'Budget range'}
-          name="budget"
-          options={budgetRanges.map((range) => (lang === 'ja' ? range.ja : range.en))}
-          required
-          value={translateBudgetValue(budget, lang)}
-          onValueChange={setBudget}
-        />
-        <div className="form-row">
-          <Field label={lang === 'ja' ? '希望納期' : 'Preferred delivery date'} name="delivery_date" required />
-          <Field label={lang === 'ja' ? '公開予定日' : 'Planned release date'} name="release_date" />
-        </div>
-        <Select
-          lang={lang}
-          label={lang === 'ja' ? '楽曲尺' : 'Song length'}
-          name="song_length"
-          options={['〜1分', '1分〜2分', '2分〜3分', '3分〜4分', '4分以上', lang === 'ja' ? '未定' : 'TBD']}
-          required
-        />
-        <CheckboxGroup
-          label={lang === 'ja' ? '素材状況' : 'Available materials'}
-          name="materials"
-          options={
-            lang === 'ja'
-              ? ['音源あり', '歌詞あり', 'イラストあり', 'イラスト差分あり', 'ロゴあり', '背景素材あり', 'まだ未定']
-              : ['Audio ready', 'Lyrics ready', 'Illustration ready', 'Illustration variations ready', 'Logo ready', 'Background ready', 'TBD']
-          }
-        />
-        <Field
-          label={lang === 'ja' ? '参考映像URL' : 'Reference video URL'}
-          name="references"
-          required
-          helper={lang === 'ja' ? '未定の場合は「未定」とご記入ください。' : 'If undecided, enter TBD.'}
-          value={references}
-          onValueChange={setReferences}
-        />
-        <Field label={lang === 'ja' ? '素材URL' : 'Material URL'} name="material_url" />
-        <Select
-          lang={lang}
-          label={lang === 'ja' ? '制作体制の希望' : 'Production setup'}
-          name="production_setup"
-          options={
-            lang === 'ja'
-              ? ['Riesz本人メインの制作を希望', '一部協力クリエイター参加可', 'Partner Planも相談可', '内容を見て相談したい']
-              : ['Riesz-led production preferred', 'Collaborator support is acceptable', 'Partner Plan is acceptable', 'Need advice after review']
-          }
-          required
-        />
-        <Select
-          lang={lang}
-          label={lang === 'ja' ? '実績掲載の可否' : 'Portfolio visibility'}
-          name="portfolio_visibility"
-          options={lang === 'ja' ? ['掲載可', '公開後なら掲載可', '掲載不可（+100,000円〜）', '相談したい'] : ['Allowed', 'Allowed after release', 'Private (+JPY 100,000+)', 'Need to discuss']}
-          required
-        />
-        <Select
-          lang={lang}
-          label={lang === 'ja' ? 'プロジェクトファイル納品' : 'Project file delivery'}
-          name="project_file"
-          options={lang === 'ja' ? ['希望しない', '希望する（+200,000円〜）', '相談したい'] : ['Not needed', 'Requested (+JPY 200,000+)', 'Need to discuss']}
-          required
-        />
-        <TextArea label={lang === 'ja' ? 'その他' : 'Additional notes'} name="message" />
+        <FormSection
+          id="personal-contact"
+          number="01"
+          title={lang === 'ja' ? 'ご連絡先' : 'Contact'}
+          subtitle={lang === 'ja' ? 'Contact' : 'Your details'}
+        >
+          <Field label={lang === 'ja' ? '名前 / 活動名' : 'Name / Artist name'} name="name" required />
+          <Field label={lang === 'ja' ? 'メールアドレス' : 'Email'} name="email" type="email" required />
+          <div className="form-row">
+            <Field label="Discord ID" name="discord" />
+            <Field label="X ID" name="x_id" />
+          </div>
+        </FormSection>
+
+        <FormSection
+          id="personal-request"
+          number="02"
+          title={lang === 'ja' ? 'ご依頼内容' : 'Request'}
+          subtitle={lang === 'ja' ? 'Request' : 'Scope and budget'}
+        >
+          <Select
+            lang={lang}
+            label={lang === 'ja' ? '依頼内容' : 'Request type'}
+            name="request_type"
+            options={
+              lang === 'ja'
+                ? ['オリジナルMV', '歌ってみたMV', 'Shorts / 短尺動画', 'Lyric Video', 'その他']
+                : ['Original MV', 'Cover MV', 'Shorts / Short video', 'Lyric Video', 'Other']
+            }
+            required
+          />
+          <Select
+            lang={lang}
+            label={lang === 'ja' ? '希望プラン' : 'Preferred plan'}
+            name="preferred_plan"
+            options={[
+              'Riesz Main Standard',
+              'Riesz Main Flagship',
+              'Hybrid Standard',
+              'Hybrid Flagship',
+              'Partner Plan',
+              'Short / Light',
+              lang === 'ja' ? '相談して決めたい' : 'Need advice',
+            ]}
+            required
+            value={preferredPlan}
+            onValueChange={setPreferredPlan}
+          />
+          <Select
+            lang={lang}
+            label={lang === 'ja' ? '予算帯' : 'Budget range'}
+            name="budget"
+            options={budgetRanges.map((range) => (lang === 'ja' ? range.ja : range.en))}
+            required
+            value={translateBudgetValue(budget, lang)}
+            onValueChange={setBudget}
+          />
+        </FormSection>
+
+        <FormSection
+          id="personal-schedule"
+          number="03"
+          title={lang === 'ja' ? '納期・素材' : 'Schedule & Materials'}
+          subtitle={lang === 'ja' ? 'Schedule & Materials' : 'Timing and source files'}
+        >
+          <div className="form-row">
+            <Field label={lang === 'ja' ? '希望納期' : 'Preferred delivery date'} name="delivery_date" required />
+            <Field label={lang === 'ja' ? '公開予定日' : 'Planned release date'} name="release_date" />
+          </div>
+          <Select
+            lang={lang}
+            label={lang === 'ja' ? '楽曲尺' : 'Song length'}
+            name="song_length"
+            options={['〜1分', '1分〜2分', '2分〜3分', '3分〜4分', '4分以上', lang === 'ja' ? '未定' : 'TBD']}
+            required
+          />
+          <CheckboxGroup
+            label={lang === 'ja' ? '素材状況' : 'Available materials'}
+            name="materials"
+            options={
+              lang === 'ja'
+                ? ['音源あり', '歌詞あり', 'イラストあり', 'イラスト差分あり', 'ロゴあり', '背景素材あり', 'まだ未定']
+                : ['Audio ready', 'Lyrics ready', 'Illustration ready', 'Illustration variations ready', 'Logo ready', 'Background ready', 'TBD']
+            }
+          />
+          <Field
+            label={lang === 'ja' ? '参考映像URL' : 'Reference video URL'}
+            name="references"
+            required
+            helper={lang === 'ja' ? '未定の場合は「未定」とご記入ください。' : 'If undecided, enter TBD.'}
+            value={references}
+            onValueChange={setReferences}
+          />
+          <Field label={lang === 'ja' ? '素材URL' : 'Material URL'} name="material_url" />
+        </FormSection>
+
+        <FormSection
+          id="personal-terms"
+          number="04"
+          title={lang === 'ja' ? '制作条件' : 'Production Terms'}
+          subtitle={lang === 'ja' ? 'Production Terms' : 'Ownership and delivery'}
+        >
+          <Select
+            lang={lang}
+            label={lang === 'ja' ? '制作体制の希望' : 'Production setup'}
+            name="production_setup"
+            options={
+              lang === 'ja'
+                ? ['Riesz本人メインの制作を希望', '一部協力クリエイター参加可', 'Partner Planも相談可', '内容を見て相談したい']
+                : ['Riesz-led production preferred', 'Collaborator support is acceptable', 'Partner Plan is acceptable', 'Need advice after review']
+            }
+            required
+          />
+          <Select
+            lang={lang}
+            label={lang === 'ja' ? '実績掲載の可否' : 'Portfolio visibility'}
+            name="portfolio_visibility"
+            options={lang === 'ja' ? ['掲載可', '公開後なら掲載可', '掲載不可（+100,000円〜）', '相談したい'] : ['Allowed', 'Allowed after release', 'Private (+JPY 100,000+)', 'Need to discuss']}
+            required
+          />
+          <Select
+            lang={lang}
+            label={lang === 'ja' ? 'プロジェクトファイル納品' : 'Project file delivery'}
+            name="project_file"
+            options={lang === 'ja' ? ['希望しない', '希望する（+200,000円〜）', '相談したい'] : ['Not needed', 'Requested (+JPY 200,000+)', 'Need to discuss']}
+            required
+          />
+          <TextArea label={lang === 'ja' ? 'その他' : 'Additional notes'} name="message" />
+        </FormSection>
         <button className="submit-button" type="submit" disabled={submitStatus === 'submitting'}>
           <Mail size={17} aria-hidden="true" />
           {submitStatus === 'submitting'
@@ -1129,6 +1160,35 @@ function ContactIntro({ lang, business }: { lang: Lang; business: boolean }) {
         {contactEmail}
       </a>
     </div>
+  )
+}
+
+function FormSection({
+  id,
+  number,
+  title,
+  subtitle,
+  children,
+}: {
+  id: string
+  number: string
+  title: string
+  subtitle: string
+  children: ReactNode
+}) {
+  const headingId = `${id}-heading`
+
+  return (
+    <section className="form-section" id={id} aria-labelledby={headingId}>
+      <header className="form-section__heading">
+        <span>{number}</span>
+        <div>
+          <h3 id={headingId}>{title}</h3>
+          <p>{subtitle}</p>
+        </div>
+      </header>
+      <div className="form-section__fields">{children}</div>
+    </section>
   )
 }
 

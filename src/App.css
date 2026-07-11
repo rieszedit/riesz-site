@@ -1032,6 +1032,52 @@ button {
   gap: 16px;
 }
 
+.form-section {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 24px;
+  min-width: 0;
+  border-top: 1px solid rgba(243, 246, 239, 0.14);
+  padding: 24px 0;
+}
+
+.form-section__heading {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  min-width: 0;
+}
+
+.form-section__heading > span {
+  color: var(--accent);
+  font-family: var(--display);
+  font-size: 1.25rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.form-section__heading h3 {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--ui);
+  font-size: 0.92rem;
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.form-section__heading p {
+  margin: 5px 0 0;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  line-height: 1.45;
+}
+
+.form-section__fields {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
 .contact-preset {
   border: 1px solid rgba(207, 255, 100, 0.3);
   background: rgba(207, 255, 100, 0.08);
@@ -1449,6 +1495,12 @@ button {
     border: 1px solid rgba(243, 246, 239, 0.13);
     background: #151515;
     padding: 24px;
+  }
+
+  .form-section {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 22px 0;
   }
 
   .submit-button {

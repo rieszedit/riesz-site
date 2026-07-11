@@ -1041,62 +1041,103 @@ function BusinessContact({ lang }: { lang: Lang }) {
       >
         <input type="hidden" name="_subject" value="[Riesz 法人依頼]" />
         <HoneypotField />
-        <Field label={lang === 'ja' ? '会社名' : 'Company'} name="company" required />
-        <Field label={lang === 'ja' ? '担当者名' : 'Contact person'} name="name" required />
-        <Field label={lang === 'ja' ? 'メールアドレス' : 'Email'} name="email" type="email" required />
-        <Field label={lang === 'ja' ? '会社サイトURL' : 'Company website'} name="company_url" />
-        <TextArea label={lang === 'ja' ? '案件概要' : 'Project summary'} name="project_summary" required />
-        <Field label={lang === 'ja' ? '使用範囲' : 'Usage scope'} name="usage_scope" required />
-        <Field label={lang === 'ja' ? '公開媒体' : 'Release media'} name="media" required />
-        <div className="form-row">
-          <Field label={lang === 'ja' ? '希望納期' : 'Preferred delivery date'} name="delivery_date" required />
-          <Field label={lang === 'ja' ? '公開予定日' : 'Planned release date'} name="release_date" required />
-        </div>
-        <Select
-          lang={lang}
-          label={lang === 'ja' ? '実績掲載の可否' : 'Portfolio visibility'}
-          name="portfolio_visibility"
-          options={lang === 'ja' ? ['掲載可', '公開後なら掲載可', '掲載不可', '相談したい'] : ['Allowed', 'Allowed after release', 'Private', 'Need to discuss']}
-          required
-        />
-        <Select
-          lang={lang}
-          label={lang === 'ja' ? 'NDA / 契約書の有無' : 'NDA / Contract'}
-          name="nda_contract"
-          options={lang === 'ja' ? ['あり', 'なし', '相談したい'] : ['Required', 'Not required', 'Need to discuss']}
-          required
-        />
-        <Select
-          lang={lang}
-          label={
-            lang === 'ja'
-              ? '協力クリエイターの参加可否'
-              : 'Collaborator participation'
-          }
-          name="collaborator_participation"
-          options={
-            lang === 'ja'
-              ? corporateCollaboratorOptions.ja
-              : corporateCollaboratorOptions.en
-          }
-          helper={
-            lang === 'ja'
-              ? corporateCollaboratorHelper.ja
-              : corporateCollaboratorHelper.en
-          }
-          required
-        />
-        <Field label={lang === 'ja' ? '請求書払い条件' : 'Invoice payment terms'} name="payment_terms" required />
-        <Field label={lang === 'ja' ? '参考資料URL' : 'Reference material URL'} name="references" required />
-        <Field label={lang === 'ja' ? '予算感' : 'Budget range'} name="budget" />
-        <Field label={lang === 'ja' ? '素材URL' : 'Material URL'} name="material_url" />
-        <Select
-          lang={lang}
-          label={lang === 'ja' ? 'プロジェクトファイル納品' : 'Project file delivery'}
-          name="project_file"
-          options={lang === 'ja' ? ['希望しない', '希望する（+200,000円〜）', '相談したい'] : ['Not needed', 'Requested (+JPY 200,000+)', 'Need to discuss']}
-        />
-        <TextArea label={lang === 'ja' ? 'その他' : 'Additional notes'} name="message" />
+        <FormSection
+          id="business-contact"
+          number="01"
+          title={lang === 'ja' ? 'ご連絡先' : 'Contact'}
+          subtitle={lang === 'ja' ? 'Contact' : 'Company details'}
+        >
+          <div className="form-row">
+            <Field label={lang === 'ja' ? '会社名' : 'Company'} name="company" required />
+            <Field label={lang === 'ja' ? '担当者名' : 'Contact person'} name="name" required />
+          </div>
+          <div className="form-row">
+            <Field label={lang === 'ja' ? 'メールアドレス' : 'Email'} name="email" type="email" required />
+            <Field label={lang === 'ja' ? '会社サイトURL' : 'Company website'} name="company_url" />
+          </div>
+        </FormSection>
+
+        <FormSection
+          id="business-project"
+          number="02"
+          title={lang === 'ja' ? '案件概要' : 'Project'}
+          subtitle={lang === 'ja' ? 'Project' : 'Scope and release'}
+        >
+          <TextArea label={lang === 'ja' ? '案件概要' : 'Project summary'} name="project_summary" required />
+          <div className="form-row">
+            <Field label={lang === 'ja' ? '使用範囲' : 'Usage scope'} name="usage_scope" required />
+            <Field label={lang === 'ja' ? '公開媒体' : 'Release media'} name="media" required />
+          </div>
+          <Field label={lang === 'ja' ? '参考資料URL' : 'Reference material URL'} name="references" required />
+        </FormSection>
+
+        <FormSection
+          id="business-schedule"
+          number="03"
+          title={lang === 'ja' ? '納期・素材' : 'Schedule & Materials'}
+          subtitle={lang === 'ja' ? 'Schedule & Materials' : 'Timing, budget, and assets'}
+        >
+          <div className="form-row">
+            <Field label={lang === 'ja' ? '希望納期' : 'Preferred delivery date'} name="delivery_date" required />
+            <Field label={lang === 'ja' ? '公開予定日' : 'Planned release date'} name="release_date" required />
+          </div>
+          <div className="form-row">
+            <Field label={lang === 'ja' ? '予算感' : 'Budget range'} name="budget" />
+            <Field label={lang === 'ja' ? '素材URL' : 'Material URL'} name="material_url" />
+          </div>
+        </FormSection>
+
+        <FormSection
+          id="business-terms"
+          number="04"
+          title={lang === 'ja' ? '契約・制作条件' : 'Contract & Production'}
+          subtitle={lang === 'ja' ? 'Contract & Production' : 'Approval, payment, and delivery'}
+        >
+          <div className="form-row">
+            <Select
+              lang={lang}
+              label={lang === 'ja' ? '実績掲載の可否' : 'Portfolio visibility'}
+              name="portfolio_visibility"
+              options={lang === 'ja' ? ['掲載可', '公開後なら掲載可', '掲載不可', '相談したい'] : ['Allowed', 'Allowed after release', 'Private', 'Need to discuss']}
+              required
+            />
+            <Select
+              lang={lang}
+              label={lang === 'ja' ? 'NDA / 契約書の有無' : 'NDA / Contract'}
+              name="nda_contract"
+              options={lang === 'ja' ? ['あり', 'なし', '相談したい'] : ['Required', 'Not required', 'Need to discuss']}
+              required
+            />
+          </div>
+          <Select
+            lang={lang}
+            label={
+              lang === 'ja'
+                ? '協力クリエイターの参加可否'
+                : 'Collaborator participation'
+            }
+            name="collaborator_participation"
+            options={
+              lang === 'ja'
+                ? corporateCollaboratorOptions.ja
+                : corporateCollaboratorOptions.en
+            }
+            helper={
+              lang === 'ja'
+                ? corporateCollaboratorHelper.ja
+                : corporateCollaboratorHelper.en
+            }
+            required
+          />
+          <Field label={lang === 'ja' ? '請求書払い条件' : 'Invoice payment terms'} name="payment_terms" required />
+          <Select
+            lang={lang}
+            label={lang === 'ja' ? 'プロジェクトファイル納品' : 'Project file delivery'}
+            name="project_file"
+            options={lang === 'ja' ? ['希望しない', '希望する（+200,000円〜）', '相談したい'] : ['Not needed', 'Requested (+JPY 200,000+)', 'Need to discuss']}
+          />
+          <TextArea label={lang === 'ja' ? 'その他' : 'Additional notes'} name="message" />
+        </FormSection>
         <button className="submit-button" type="submit" disabled={submitStatus === 'submitting'}>
           <Mail size={17} aria-hidden="true" />
           {submitStatus === 'submitting'

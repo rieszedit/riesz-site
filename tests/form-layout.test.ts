@@ -20,3 +20,14 @@ test('keeps both Formspree actions and honeypots in place', () => {
   assert.match(source, /action={formEndpoints\.business}/)
   assert.equal(source.match(/<HoneypotField \/>/g)?.length, 2)
 })
+
+test('defines the approved business form groups', () => {
+  for (const id of [
+    'business-contact',
+    'business-project',
+    'business-schedule',
+    'business-terms',
+  ]) {
+    assert.match(source, new RegExp(`id="${id}"`))
+  }
+})

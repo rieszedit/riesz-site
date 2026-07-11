@@ -279,3 +279,32 @@ test('Save-Data renders a static hero without video sources', async ({ browser }
 
   await context.close()
 })
+
+test('font files are delivered locally without changing the font families', async ({
+  page,
+}) => {
+  const fontRequests: string[] = []
+  const externalFontRequests: string[] = []
+  page.on('request', (request) => {
+    const url = request.url()
+    if (/fonts\.googleapis\.com|fonts\.gstatic\.com/.test(url)) {
+      externalFontRequests.push(url)
+    }
+    if (request.resourceType() === 'font') {
+      fontRequests.push(url)
+    }
+  })
+
+  await page.goto('/', { waitUntil: 'networkidle' })
+  await page.evaluate(() => document.fonts.ready)
+  const pageOrigin = new URL(page.url()).origin
+
+  expect(externalFontRequests).toEqual([])
+  expect(fontRequests.length).toBeGreaterThan(0)
+  expect(fontRequests.every((url) => new URL(url).origin === pageOrigin)).toBe(true)
+  await expect(page.locator('.hero-copy h1')).toHaveCSS('font-family', /Archivo/)
+  await expect(page.locator('.hero-description')).toHaveCSS(
+    'font-family',
+    /Noto Sans JP/,
+  )
+})

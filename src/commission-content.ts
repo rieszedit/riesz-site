@@ -1,5 +1,7 @@
 export type Lang = 'ja' | 'en'
 
+export { corporateCollaboratorOptions } from './form-options.ts'
+
 type PricingTierId = 'standard' | 'flagship'
 
 export type PricingTier = {
@@ -196,21 +198,6 @@ export const supportPlans: SupportPlan[] = [
     bestForEn: 'Short videos / announcements / partial-production requests',
   },
 ]
-
-export const corporateCollaboratorOptions = {
-  ja: [
-    'Riesz本人メインの制作を希望',
-    '一部工程のみ参加可（Hybrid）',
-    '協力クリエイター主体も相談可（Partner）',
-    '案件内容を見て相談したい',
-  ],
-  en: [
-    'Riesz-led production preferred',
-    'Limited participation allowed (Hybrid)',
-    'Partner-led production may be discussed',
-    'Decide after reviewing the project',
-  ],
-}
 
 export const corporateCollaboratorHelper = {
   ja: '参加する場合は担当範囲を開示し、クライアントの事前承認と必要なNDA締結後に進行します。',

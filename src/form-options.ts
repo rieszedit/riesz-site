@@ -1,0 +1,114 @@
+export type LocalizedOption = {
+  value: string
+  ja: string
+  en: string
+}
+
+const option = (value: string, en: string): LocalizedOption => ({
+  value,
+  ja: value,
+  en,
+})
+
+export const personalRequestTypeOptions = [
+  option('オリジナルMV', 'Original MV'),
+  option('歌ってみたMV', 'Cover MV'),
+  option('Shorts / 短尺動画', 'Shorts / Short video'),
+  option('Lyric Video', 'Lyric Video'),
+  option('その他', 'Other'),
+]
+
+export const preferredPlanOptions = [
+  option('Riesz Main Standard', 'Riesz Main Standard'),
+  option('Riesz Main Flagship', 'Riesz Main Flagship'),
+  option('Hybrid Standard', 'Hybrid Standard'),
+  option('Hybrid Flagship', 'Hybrid Flagship'),
+  option('Partner Plan', 'Partner Plan'),
+  option('Short / Light', 'Short / Light'),
+  option('相談して決めたい', 'Need advice'),
+]
+
+export const budgetOptions = [
+  option('5万円〜10万円', 'JPY 50,000-100,000'),
+  option('10万円〜15万円', 'JPY 100,000-150,000'),
+  option('15万円〜20万円', 'JPY 150,000-200,000'),
+  option('20万円〜25万円', 'JPY 200,000-250,000'),
+  option('25万円以上', 'JPY 250,000+'),
+  option('相談したい', 'Need advice'),
+]
+
+export const songLengthOptions = [
+  option('〜1分', 'Up to 1 minute'),
+  option('1分〜2分', '1-2 minutes'),
+  option('2分〜3分', '2-3 minutes'),
+  option('3分〜4分', '3-4 minutes'),
+  option('4分以上', 'Over 4 minutes'),
+  option('未定', 'TBD'),
+]
+
+export const materialOptions = [
+  option('音源あり', 'Audio ready'),
+  option('歌詞あり', 'Lyrics ready'),
+  option('イラストあり', 'Illustration ready'),
+  option('イラスト差分あり', 'Illustration variations ready'),
+  option('ロゴあり', 'Logo ready'),
+  option('背景素材あり', 'Background ready'),
+  option('まだ未定', 'TBD'),
+]
+
+export const personalSetupOptions = [
+  option('Riesz本人メインの制作を希望', 'Riesz-led production preferred'),
+  option('一部協力クリエイター参加可', 'Collaborator support is acceptable'),
+  option('Partner Planも相談可', 'Partner Plan is acceptable'),
+  option('内容を見て相談したい', 'Need advice after review'),
+]
+
+export const personalPortfolioOptions = [
+  option('掲載可', 'Allowed'),
+  option('公開後なら掲載可', 'Allowed after release'),
+  option('掲載不可（+100,000円〜）', 'Private (+JPY 100,000+)'),
+  option('相談したい', 'Need to discuss'),
+]
+
+export const businessPortfolioOptions = [
+  option('掲載可', 'Allowed'),
+  option('公開後なら掲載可', 'Allowed after release'),
+  option('掲載不可', 'Private'),
+  option('相談したい', 'Need to discuss'),
+]
+
+export const projectFileOptions = [
+  option('希望しない', 'Not needed'),
+  option('希望する（+200,000円〜）', 'Requested (+JPY 200,000+)'),
+  option('相談したい', 'Need to discuss'),
+]
+
+export const ndaOptions = [
+  option('あり', 'Required'),
+  option('なし', 'Not required'),
+  option('相談したい', 'Need to discuss'),
+]
+
+export const corporateCollaboratorOptions = [
+  option('Riesz本人メインの制作を希望', 'Riesz-led production preferred'),
+  option('一部工程のみ参加可（Hybrid）', 'Limited participation allowed (Hybrid)'),
+  option(
+    '協力クリエイター主体も相談可（Partner）',
+    'Partner-led production may be discussed',
+  ),
+  option('案件内容を見て相談したい', 'Decide after reviewing the project'),
+]
+
+export const allLocalizedOptionSets: LocalizedOption[][] = [
+  personalRequestTypeOptions,
+  preferredPlanOptions,
+  budgetOptions,
+  songLengthOptions,
+  materialOptions,
+  personalSetupOptions,
+  personalPortfolioOptions,
+  businessPortfolioOptions,
+  projectFileOptions,
+  ndaOptions,
+  corporateCollaboratorOptions,
+]

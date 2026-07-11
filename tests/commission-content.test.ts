@@ -38,15 +38,20 @@ test('keeps Partner and Short Light outside the Main and Hybrid comparison', () 
 })
 
 test('offers explicit corporate consent levels for collaborator participation', () => {
-  assert.equal(corporateCollaboratorOptions.ja.length, 4)
-  assert.equal(corporateCollaboratorOptions.en.length, 4)
-  assert.equal(corporateCollaboratorOptions.ja[1], '一部工程のみ参加可（Hybrid）')
+  assert.equal(corporateCollaboratorOptions.length, 4)
   assert.equal(
-    corporateCollaboratorOptions.ja[2],
+    corporateCollaboratorOptions[1].value,
+    '一部工程のみ参加可（Hybrid）',
+  )
+  assert.equal(
+    corporateCollaboratorOptions[2].value,
     '協力クリエイター主体も相談可（Partner）',
   )
-  assert.equal(corporateCollaboratorOptions.en[1], 'Limited participation allowed (Hybrid)')
-  assert.match(corporateCollaboratorOptions.en[2], /partner-led/i)
+  assert.equal(
+    corporateCollaboratorOptions[1].en,
+    'Limited participation allowed (Hybrid)',
+  )
+  assert.match(corporateCollaboratorOptions[2].en, /partner-led/i)
   assert.match(corporateCollaboratorHelper.ja, /担当範囲/)
   assert.match(corporateCollaboratorHelper.ja, /事前承認/)
   assert.match(corporateCollaboratorHelper.ja, /NDA/)

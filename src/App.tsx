@@ -32,6 +32,10 @@ import {
 } from './form-options'
 import type { LocalizedOption } from './form-options'
 import {
+  getSaveDataConnection,
+  shouldRenderStaticHeroFromBrowser,
+} from './hero-media'
+import {
   readBrowserLanguagePreference,
   writeBrowserLanguagePreference,
 } from './language-preference'
@@ -76,7 +80,9 @@ const heroWork = {
   client: '涼海ネモ / Nemo Channel',
   url: 'https://www.youtube.com/watch?v=nRDHO45n3AM',
   image: '/media/unknown-mother-goose-poster.jpg',
+  posterWebp: '/media/unknown-mother-goose-poster.webp',
   video: '/media/unknown-mother-goose-hero.mp4',
+  mobileVideo: '/media/unknown-mother-goose-hero-mobile.mp4',
 }
 
 function createWorkContactPreset(work: WorkItem): WorkContactPreset {
@@ -225,20 +231,28 @@ function getPage(): Page {
   return root?.dataset.page === 'business' ? 'business' : 'personal'
 }
 
-function usePrefersReducedMotion() {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
+function useStaticHeroMedia() {
+  const [renderStaticHero, setRenderStaticHero] = useState(
+    shouldRenderStaticHeroFromBrowser,
+  )
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const handleChange = () => setPrefersReducedMotion(mediaQuery.matches)
+    const connection = getSaveDataConnection()
+    const handleChange = () =>
+      setRenderStaticHero(shouldRenderStaticHeroFromBrowser())
 
     handleChange()
     mediaQuery.addEventListener('change', handleChange)
+    connection?.addEventListener?.('change', handleChange)
 
-    return () => mediaQuery.removeEventListener('change', handleChange)
+    return () => {
+      mediaQuery.removeEventListener('change', handleChange)
+      connection?.removeEventListener?.('change', handleChange)
+    }
   }, [])
 
-  return prefersReducedMotion
+  return renderStaticHero
 }
 
 async function handleContactSubmit(
@@ -502,7 +516,7 @@ function HoneypotField() {
 }
 
 function Hero({ lang }: { lang: Lang }) {
-  const prefersReducedMotion = usePrefersReducedMotion()
+  const renderStaticHero = useStaticHeroMedia()
 
   return (
     <section className="hero-section">
@@ -534,18 +548,26 @@ function Hero({ lang }: { lang: Lang }) {
         </div>
       </div>
       <div className="hero-visual" aria-label={heroWork.title}>
-        {prefersReducedMotion ? (
-          <img src={heroWork.image} alt="" />
+        {renderStaticHero ? (
+          <picture>
+            <source srcSet={heroWork.posterWebp} type="image/webp" />
+            <img src={heroWork.image} alt="" />
+          </picture>
         ) : (
           <video
             autoPlay
             loop
             muted
             playsInline
-            poster={heroWork.image}
+            poster={heroWork.posterWebp}
             preload="metadata"
             aria-hidden="true"
           >
+            <source
+              src={heroWork.mobileVideo}
+              media="(max-width: 760px)"
+              type="video/mp4"
+            />
             <source src={heroWork.video} type="video/mp4" />
           </video>
         )}

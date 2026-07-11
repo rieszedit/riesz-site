@@ -232,3 +232,50 @@ test('personal and business pages do not overflow narrow viewports', async ({ pa
     await expectNoHorizontalOverflow(page, '/business/', width)
   }
 })
+
+test('hero media selects the desktop and mobile delivery files', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1000 })
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
+  await expect(page.locator('.hero-visual video')).toBeVisible()
+  await expect
+    .poll(() => page.locator('.hero-visual video').evaluate((video) => video.currentSrc))
+    .toContain('unknown-mother-goose-hero.mp4')
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.reload({ waitUntil: 'domcontentloaded' })
+  await expect
+    .poll(() => page.locator('.hero-visual video').evaluate((video) => video.currentSrc))
+    .toContain('unknown-mother-goose-hero-mobile.mp4')
+})
+
+test('reduced motion renders a static hero without video sources', async ({ browser }) => {
+  const context = await browser.newContext({ reducedMotion: 'reduce' })
+  const page = await context.newPage()
+
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
+  await expect(page.locator('.hero-visual video')).toHaveCount(0)
+  await expect(page.locator('.hero-visual picture img')).toBeVisible()
+
+  await context.close()
+})
+
+test('Save-Data renders a static hero without video sources', async ({ browser }) => {
+  const context = await browser.newContext()
+  const page = await context.newPage()
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'connection', {
+      configurable: true,
+      value: {
+        addEventListener() {},
+        removeEventListener() {},
+        saveData: true,
+      },
+    })
+  })
+
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
+  await expect(page.locator('.hero-visual video')).toHaveCount(0)
+  await expect(page.locator('.hero-visual picture img')).toBeVisible()
+
+  await context.close()
+})

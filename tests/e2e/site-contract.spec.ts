@@ -39,7 +39,7 @@ async function expectNoHorizontalOverflow(page: Page, path: string, width: numbe
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth)
 }
 
-test('personal form preserves its submission contract and portfolio preset', async ({ page }) => {
+test('personal form keeps client references separate from the selected Riesz work', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' })
   const form = page.locator('form.contact-form')
 
@@ -48,6 +48,7 @@ test('personal form preserves its submission contract and portfolio preset', asy
       '_gotcha',
       '_subject',
       'budget',
+      'client_reference_urls',
       'delivery_date',
       'discord',
       'email',
@@ -59,7 +60,6 @@ test('personal form preserves its submission contract and portfolio preset', asy
       'preferred_plan',
       'production_setup',
       'project_file',
-      'references',
       'release_date',
       'request_type',
       'song_length',
@@ -74,7 +74,6 @@ test('personal form preserves its submission contract and portfolio preset', asy
       'preferred_plan',
       'production_setup',
       'project_file',
-      'references',
       'request_type',
       'song_length',
     ].sort(),
@@ -100,18 +99,51 @@ test('personal form preserves its submission contract and portfolio preset', asy
     '相談したい',
   ])
 
+  const clientReferences = form.locator('[name="client_reference_urls"]')
+  await clientReferences.fill(
+    'https://www.youtube.com/watch?v=client-reference\nhttps://vimeo.com/client-reference',
+  )
+
   await page.locator('.work-contact-link').first().click()
   await expect(form.locator('[name="preferred_plan"]')).toHaveValue('Riesz Main Flagship')
   await expect(form.locator('[name="budget"]')).toHaveValue('25万円以上')
-  await expect(form.locator('[name="references"]')).toHaveValue(
+  await expect(form.locator('[name="riesz_reference_work"]')).toHaveValue('神っぽいな')
+  await expect(form.locator('[name="riesz_reference_url"]')).toHaveValue(
     'https://www.youtube.com/watch?v=vIHCFGj_G2E',
+  )
+  await expect(clientReferences).toHaveValue(
+    'https://www.youtube.com/watch?v=client-reference\nhttps://vimeo.com/client-reference',
   )
 
   await page.getByRole('button', { name: /EN/ }).click()
   await expect(form.locator('[name="preferred_plan"]')).toHaveValue('Riesz Main Flagship')
   await expect(form.locator('[name="budget"]')).toHaveValue('25万円以上')
-  await expect(form.locator('[name="references"]')).toHaveValue(
+  await expect(form.locator('[name="riesz_reference_work"]')).toHaveValue('神っぽいな')
+  await expect(form.locator('[name="riesz_reference_url"]')).toHaveValue(
     'https://www.youtube.com/watch?v=vIHCFGj_G2E',
+  )
+  await expect(clientReferences).toHaveValue(
+    'https://www.youtube.com/watch?v=client-reference\nhttps://vimeo.com/client-reference',
+  )
+})
+
+test('selected Riesz work can be cleared without erasing the inquiry details', async ({
+  page,
+}) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
+  const form = page.locator('form.contact-form')
+  const clientReferences = form.locator('[name="client_reference_urls"]')
+
+  await clientReferences.fill('https://www.youtube.com/watch?v=client-reference')
+  await page.locator('.work-contact-link').first().click()
+  await page.getByRole('button', { name: '作品の選択を解除' }).click()
+
+  await expect(form.locator('[name="riesz_reference_work"]')).toHaveCount(0)
+  await expect(form.locator('[name="riesz_reference_url"]')).toHaveCount(0)
+  await expect(form.locator('[name="preferred_plan"]')).toHaveValue('Riesz Main Flagship')
+  await expect(form.locator('[name="budget"]')).toHaveValue('25万円以上')
+  await expect(clientReferences).toHaveValue(
+    'https://www.youtube.com/watch?v=client-reference',
   )
 })
 

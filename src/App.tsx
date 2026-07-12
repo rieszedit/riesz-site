@@ -6,6 +6,7 @@ import {
   Mail,
   Play,
   Send,
+  X,
 } from 'lucide-react'
 import type { ChangeEvent, FormEvent, ReactNode } from 'react'
 import { useEffect, useState } from 'react'
@@ -52,7 +53,7 @@ type WorkContactPreset = {
   plan: string
   budgetJa: string
   budgetEn: string
-  referenceUrl: string
+  workUrl: string
 }
 
 const contactEmail = 'rieszedit@gmail.com'
@@ -91,7 +92,7 @@ function createWorkContactPreset(work: WorkItem): WorkContactPreset {
   return {
     title: work.title,
     titleEn: work.titleEn,
-    referenceUrl: work.url,
+    workUrl: work.url,
     ...scalePreset,
   }
 }
@@ -851,7 +852,6 @@ function PersonalContact({
   const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle')
   const [preferredPlan, setPreferredPlan] = useState('')
   const [budget, setBudget] = useState('')
-  const [references, setReferences] = useState('')
 
   useEffect(() => {
     if (!workContactPreset) {
@@ -860,14 +860,12 @@ function PersonalContact({
 
     setPreferredPlan(workContactPreset.plan)
     setBudget(workContactPreset.budgetJa)
-    setReferences(workContactPreset.referenceUrl)
     setSubmitStatus('idle')
   }, [workContactPreset])
 
   const resetControlledFields = () => {
     setPreferredPlan('')
     setBudget('')
-    setReferences('')
     onClearWorkContactPreset()
   }
 
@@ -889,18 +887,40 @@ function PersonalContact({
         <input type="hidden" name="_subject" value="[Riesz 個人依頼]" />
         <HoneypotField />
         {workContactPreset && (
-          <div className="contact-preset" role="status" aria-live="polite">
-            <p>
-              {lang === 'ja'
-                ? `「${workContactPreset.title}」に近い規模で相談中`
-                : `Using ${workContactPreset.titleEn} as the reference`}
-            </p>
-            <span>
-              {lang === 'ja'
-                ? '希望プラン・予算帯・参考映像URLを入力しました。内容は自由に変更できます。'
-                : 'Plan, budget range, and reference URL are prefilled. You can edit them freely.'}
-            </span>
-          </div>
+          <>
+            <input
+              type="hidden"
+              name="riesz_reference_work"
+              value={workContactPreset.title}
+            />
+            <input
+              type="hidden"
+              name="riesz_reference_url"
+              value={workContactPreset.workUrl}
+            />
+            <div className="contact-preset">
+              <div className="contact-preset__header">
+                <p role="status" aria-live="polite">
+                  {lang === 'ja'
+                    ? `「${workContactPreset.title}」に近い規模で相談中`
+                    : `Using ${workContactPreset.titleEn} as the Riesz work reference`}
+                </p>
+                <button
+                  className="contact-preset__clear"
+                  type="button"
+                  onClick={onClearWorkContactPreset}
+                >
+                  <X size={15} aria-hidden="true" />
+                  {lang === 'ja' ? '作品の選択を解除' : 'Clear work selection'}
+                </button>
+              </div>
+              <span className="contact-preset__description">
+                {lang === 'ja'
+                  ? '希望プランと予算帯を入力しました。内容は自由に変更できます。'
+                  : 'The plan and budget range are prefilled. You can edit them freely.'}
+              </span>
+            </div>
+          </>
         )}
         <FormSection
           id="personal-contact"
@@ -972,13 +992,18 @@ function PersonalContact({
             name="materials"
             options={materialOptions}
           />
-          <Field
-            label={lang === 'ja' ? '参考映像URL' : 'Reference video URL'}
-            name="references"
-            required
-            helper={lang === 'ja' ? '未定の場合は「未定」とご記入ください。' : 'If undecided, enter TBD.'}
-            value={references}
-            onValueChange={setReferences}
+          <TextArea
+            label={
+              lang === 'ja'
+                ? '希望する表現の参考映像URL'
+                : 'Client reference video URLs'
+            }
+            name="client_reference_urls"
+            helper={
+              lang === 'ja'
+                ? '完成イメージに近い映像があれば、URLを1行ずつご記入ください。'
+                : 'If you have examples close to the desired result, enter one URL per line.'
+            }
           />
           <Field label={lang === 'ja' ? '素材URL' : 'Material URL'} name="material_url" />
         </FormSection>
@@ -1272,10 +1297,12 @@ function TextArea({
   label,
   name,
   required = false,
+  helper,
 }: {
   label: string
   name: string
   required?: boolean
+  helper?: string
 }) {
   return (
     <label className="field field--wide">
@@ -1284,6 +1311,7 @@ function TextArea({
         {required && <b> *</b>}
       </span>
       <textarea name={name} required={required} rows={5} />
+      {helper && <small>{helper}</small>}
     </label>
   )
 }

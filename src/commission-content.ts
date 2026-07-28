@@ -144,8 +144,8 @@ export const pricingRoutes: PricingRoute[] = [
       {
         id: 'flagship',
         name: 'Hybrid Flagship',
-        priceJa: '250,000円〜',
-        priceEn: 'From JPY 250,000',
+        priceJa: '270,000円〜',
+        priceEn: 'From JPY 270,000',
         summaryJa:
           'リリックデザインを専門パートとして組み込み、映像と文字演出を高密度に設計するプランです。',
         summaryEn:

@@ -30,6 +30,15 @@ test('groups Riesz Main and Hybrid into Standard and Flagship tiers', () => {
   }
 })
 
+test('prices Hybrid Flagship from JPY 270,000 in both languages', () => {
+  const hybridFlagship = pricingRoutes
+    .find((route) => route.id === 'hybrid')
+    ?.tiers.find((tier) => tier.id === 'flagship')
+
+  assert.equal(hybridFlagship?.priceJa, '270,000円〜')
+  assert.equal(hybridFlagship?.priceEn, 'From JPY 270,000')
+})
+
 test('keeps Partner and Short Light outside the Main and Hybrid comparison', () => {
   assert.deepEqual(
     supportPlans.map((plan) => plan.id),

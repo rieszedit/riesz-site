@@ -83,6 +83,17 @@ export const works: WorkItem[] = [
     image: 'https://i.ytimg.com/vi/yynYqcLJYPk/maxresdefault.jpg',
   },
   {
+    title: 'アンノウン・マザーグース',
+    titleEn: 'Unknown Mother Goose',
+    client: '胡桃のあ',
+    clientEn: 'Kurumi Noah',
+    role: 'Movie: Riesz',
+    tags: ['Standard', 'Cover MV'],
+    url: 'https://www.youtube.com/watch?v=MaOT-hgSO18',
+    image: 'https://i.ytimg.com/vi/MaOT-hgSO18/maxresdefault.jpg',
+    compactTitle: true,
+  },
+  {
     title: '晩餐歌',
     titleEn: 'Bansanka',
     client: '涼海ネモ / ななしいんく',

@@ -4,12 +4,28 @@ import test from 'node:test'
 import { businessWorks, works } from '../src/portfolio-content.ts'
 
 test('keeps the complete public portfolio in its existing order', () => {
-  assert.equal(works.length, 11)
+  assert.equal(works.length, 12)
   assert.deepEqual(works.slice(0, 3).map((work) => work.title), [
     '神っぽいな',
     'メクルメ',
     '紡ぐ時間',
   ])
+})
+
+test('includes Kurumi Noah Unknown Mother Goose as Riesz Main Standard', () => {
+  const work = works.find((item) => item.url.endsWith('MaOT-hgSO18'))
+
+  assert.deepEqual(work, {
+    title: 'アンノウン・マザーグース',
+    titleEn: 'Unknown Mother Goose',
+    client: '胡桃のあ',
+    clientEn: 'Kurumi Noah',
+    role: 'Movie: Riesz',
+    tags: ['Standard', 'Cover MV'],
+    url: 'https://www.youtube.com/watch?v=MaOT-hgSO18',
+    image: 'https://i.ytimg.com/vi/MaOT-hgSO18/maxresdefault.jpg',
+    compactTitle: true,
+  })
 })
 
 test('selects exactly the approved public corporate works', () => {

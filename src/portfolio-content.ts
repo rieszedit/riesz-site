@@ -85,8 +85,8 @@ export const works: WorkItem[] = [
   {
     title: 'アンノウン・マザーグース',
     titleEn: 'Unknown Mother Goose',
-    client: '胡桃のあ',
-    clientEn: 'Kurumi Noah',
+    client: '胡桃のあ / ぶいすぽっ！',
+    clientEn: 'Kurumi Noah / VSPO!',
     role: 'Movie: Riesz',
     tags: ['Standard', 'Cover MV'],
     url: 'https://www.youtube.com/watch?v=MaOT-hgSO18',

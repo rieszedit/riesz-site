@@ -39,6 +39,23 @@ test('prices Hybrid Flagship from JPY 270,000 in both languages', () => {
   assert.equal(hybridFlagship?.priceEn, 'From JPY 270,000')
 })
 
+test('positions Hybrid Standard as specialist lyric quality reinforcement from JPY 170,000', () => {
+  const hybridRoute = pricingRoutes.find((route) => route.id === 'hybrid')
+  const hybridStandard = hybridRoute?.tiers.find((tier) => tier.id === 'standard')
+
+  assert.equal(hybridStandard?.priceJa, '170,000円〜')
+  assert.equal(hybridStandard?.priceEn, 'From JPY 170,000')
+  assert.match(hybridRoute?.introJa ?? '', /専門分業/)
+  assert.match(hybridRoute?.introJa ?? '', /文字演出の完成度/)
+  assert.match(hybridStandard?.summaryJa ?? '', /リリックデザイン/)
+  assert.match(hybridStandard?.summaryJa ?? '', /完成度を高める/)
+  assert.doesNotMatch(hybridStandard?.summaryJa ?? '', /制作規模を抑え/)
+  assert.match(hybridRoute?.introEn ?? '', /division of expertise/i)
+  assert.match(hybridStandard?.summaryEn ?? '', /specialist/i)
+  assert.match(hybridStandard?.summaryEn ?? '', /quality/i)
+  assert.doesNotMatch(hybridStandard?.summaryEn ?? '', /scope controlled/i)
+})
+
 test('keeps Partner and Short Light outside the Main and Hybrid comparison', () => {
   assert.deepEqual(
     supportPlans.map((plan) => plan.id),

@@ -114,27 +114,27 @@ export const pricingRoutes: PricingRoute[] = [
     labelJa: 'Riesz + 協力クリエイター',
     labelEn: 'Riesz + specialist collaborator',
     introJa:
-      'Rieszが映像・ディレクション・仕上げを担当し、得意分野を持つ協力クリエイターが、事前に合意したリリックデザイン等の工程に参加します。',
+      'Rieszが映像・ディレクション・仕上げを担当し、リリックデザインを得意とする協力クリエイターが、事前に合意した文字演出を担当します。専門分業により、Rieszの映像表現を保ちながらリリック・文字演出の完成度を高めます。',
     introEn:
-      'Riesz leads the movie, direction, and finishing while a trusted specialist joins an agreed area such as lyric design.',
+      'Riesz leads the movie, direction, and finishing, while a trusted lyric-design specialist handles the agreed text direction. This division of expertise preserves Riesz’s visual direction while elevating the quality of lyric and text expression.',
     tiers: [
       {
         id: 'standard',
         name: 'Hybrid Standard',
-        priceJa: '130,000円〜',
-        priceEn: 'From JPY 130,000',
+        priceJa: '170,000円〜',
+        priceEn: 'From JPY 170,000',
         summaryJa:
-          'リリックデザイン等の一部工程を補強しながら、全体の制作規模を抑えた標準プランです。',
+          'Rieszが映像全体を制作し、協力クリエイターがリリックデザインを補強することで、文字演出の完成度を高める標準プランです。',
         summaryEn:
-          'A standard hybrid plan that strengthens a focused area such as lyric design while keeping the overall scope controlled.',
+          'A standard hybrid plan in which Riesz creates the overall movie and a specialist strengthens lyric design to elevate the quality of text expression.',
         productionJa: '映像・ディレクション・仕上げ：Riesz',
         productionEn: 'Movie, direction, and finishing: Riesz',
-        lyricJa: '協力クリエイター（一部工程）',
-        lyricEn: 'Specialist collaborator for an agreed portion',
-        developmentJa: '標準：必要な文字演出に重点',
-        developmentEn: 'Standard: focused lyric and text treatment',
-        bestForJa: '歌詞表現を強めたい通常規模のMV',
-        bestForEn: 'Regular-scope MVs that need stronger lyric expression',
+        lyricJa: '協力クリエイター（リリックデザイン担当）',
+        lyricEn: 'Specialist collaborator leading lyric design',
+        developmentJa: '標準：リリックデザイン・文字演出を専門的に強化',
+        developmentEn: 'Standard: specialist-led lyric design and text treatment',
+        bestForJa: '歌詞表現の完成度を高めたい通常規模のMV',
+        bestForEn: 'Regular-scope MVs that need elevated lyric expression',
         representativeWork: {
           titleJa: 'スパークル',
           titleEn: 'Sparkle',

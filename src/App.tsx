@@ -109,8 +109,8 @@ function getWorkScalePreset(tags: string[]) {
   if (tags.includes('Hybrid Standard')) {
     return {
       plan: 'Hybrid Standard',
-      budgetJa: '10万円〜15万円',
-      budgetEn: 'JPY 100,000-150,000',
+      budgetJa: '15万円〜20万円',
+      budgetEn: 'JPY 150,000-200,000',
     }
   }
 

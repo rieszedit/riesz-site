@@ -147,6 +147,21 @@ test('selected Riesz work can be cleared without erasing the inquiry details', a
   )
 })
 
+test('Hybrid Standard work prefills the updated plan and budget range', async ({
+  page,
+}) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
+  const form = page.locator('form.contact-form')
+  const hybridStandardWork = page
+    .locator('.work-card')
+    .filter({ hasText: 'Hybrid Standard' })
+
+  await hybridStandardWork.locator('.work-contact-link').click()
+
+  await expect(form.locator('[name="preferred_plan"]')).toHaveValue('Hybrid Standard')
+  await expect(form.locator('[name="budget"]')).toHaveValue('15万円〜20万円')
+})
+
 test('language changes preserve personal form selections and checkboxes', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' })
   const form = page.locator('form.contact-form')

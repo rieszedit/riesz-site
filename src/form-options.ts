@@ -56,6 +56,24 @@ export const materialOptions = [
   option('まだ未定', 'TBD'),
 ]
 
+export const illustrationStatusOptions = [
+  option('清書済み', 'Final artwork ready'),
+  option('ラフ段階', 'Rough artwork'),
+  option('制作中', 'Final artwork in progress'),
+  option('未定', 'TBD'),
+  option('イラストなし / 対象外', 'No illustration / Not applicable'),
+]
+
+export const roughAssetStartOptions = [
+  option('清書受領後に本制作（推奨）', 'Start final production after final artwork (Recommended)'),
+  option(
+    'ラフ素材から先行を希望（+30,000円〜）',
+    'Start from rough artwork (+JPY 30,000+)',
+  ),
+  option('相談して決めたい', 'Need advice'),
+  option('対象外', 'Not applicable'),
+]
+
 export const personalSetupOptions = [
   option('Riesz本人メインの制作を希望', 'Riesz-led production preferred'),
   option('一部協力クリエイター参加可', 'Collaborator support is acceptable'),
@@ -105,6 +123,8 @@ export const allLocalizedOptionSets: LocalizedOption[][] = [
   budgetOptions,
   songLengthOptions,
   materialOptions,
+  illustrationStatusOptions,
+  roughAssetStartOptions,
   personalSetupOptions,
   personalPortfolioOptions,
   businessPortfolioOptions,

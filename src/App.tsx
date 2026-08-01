@@ -22,6 +22,7 @@ import {
 import {
   budgetOptions,
   businessPortfolioOptions,
+  illustrationStatusOptions,
   materialOptions,
   ndaOptions,
   personalPortfolioOptions,
@@ -29,6 +30,7 @@ import {
   personalSetupOptions,
   preferredPlanOptions,
   projectFileOptions,
+  roughAssetStartOptions,
   songLengthOptions,
 } from './form-options'
 import type { LocalizedOption } from './form-options'
@@ -840,6 +842,47 @@ function NotesSection({ lang }: { lang: Lang }) {
   )
 }
 
+function IllustrationScheduleFields({ lang }: { lang: Lang }) {
+  return (
+    <>
+      <div className="form-row">
+        <Select
+          lang={lang}
+          label={lang === 'ja' ? 'イラストの進行状況' : 'Illustration status'}
+          name="illustration_status"
+          options={illustrationStatusOptions}
+          required
+        />
+        <Field
+          label={
+            lang === 'ja'
+              ? '清書イラスト提出予定日'
+              : 'Expected final artwork date'
+          }
+          name="final_illustration_date"
+          helper={
+            lang === 'ja'
+              ? '未定・対象外の場合は空欄で問題ありません。'
+              : 'Leave blank if TBD or not applicable.'
+          }
+        />
+      </div>
+      <Select
+        lang={lang}
+        label={lang === 'ja' ? 'ラフ素材での先行進行' : 'Starting from rough artwork'}
+        name="rough_asset_start"
+        options={roughAssetStartOptions}
+        helper={
+          lang === 'ja'
+            ? '清書受領後の本制作が基本です。ラフ先行は +30,000円〜（税別）で、内容により追加見積もり・納期調整となります。'
+            : 'Final production normally starts after final artwork is received. Rough-art starts are +JPY 30,000 before tax and may require further estimation or schedule adjustment.'
+        }
+        required
+      />
+    </>
+  )
+}
+
 function PersonalContact({
   lang,
   workContactPreset,
@@ -992,6 +1035,7 @@ function PersonalContact({
             name="materials"
             options={materialOptions}
           />
+          <IllustrationScheduleFields lang={lang} />
           <TextArea
             label={
               lang === 'ja'
@@ -1107,6 +1151,7 @@ function BusinessContact({ lang }: { lang: Lang }) {
             <Field label={lang === 'ja' ? '希望納期' : 'Preferred delivery date'} name="delivery_date" required />
             <Field label={lang === 'ja' ? '公開予定日' : 'Planned release date'} name="release_date" required />
           </div>
+          <IllustrationScheduleFields lang={lang} />
           <div className="form-row">
             <Field label={lang === 'ja' ? '予算感' : 'Budget range'} name="budget" />
             <Field label={lang === 'ja' ? '素材URL' : 'Material URL'} name="material_url" />

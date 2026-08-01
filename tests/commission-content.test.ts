@@ -95,3 +95,17 @@ test('defines unlimited minor revisions only inside the agreed direction', () =>
   assert.match(englishPolicy, /without a fixed round limit/i)
   assert.match(englishPolicy, /major asset replacements/i)
 })
+
+test('explains when final production starts and how rough artwork is handled', () => {
+  const japanesePolicy = notesJa.join('\n')
+  const englishPolicy = notesEn.join('\n')
+
+  assert.match(japanesePolicy, /清書イラストおよび必要素材の受領・確認後/)
+  assert.match(japanesePolicy, /ラフ素材先行進行として \+30,000円〜（税別）/)
+  assert.match(japanesePolicy, /同一構図・同一サイズ・同一ポーズ/)
+  assert.match(japanesePolicy, /制作枠を再調整/)
+  assert.match(englishPolicy, /final illustrations and other required materials/i)
+  assert.match(englishPolicy, /additional JPY 30,000 before tax/i)
+  assert.match(englishPolicy, /same composition, dimensions, pose/i)
+  assert.match(englishPolicy, /production schedule and delivery date will be rescheduled/i)
+})

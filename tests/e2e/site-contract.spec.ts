@@ -52,6 +52,8 @@ test('personal form keeps client references separate from the selected Riesz wor
       'delivery_date',
       'discord',
       'email',
+      'final_illustration_date',
+      'illustration_status',
       'materials',
       'material_url',
       'message',
@@ -62,6 +64,7 @@ test('personal form keeps client references separate from the selected Riesz wor
       'project_file',
       'release_date',
       'request_type',
+      'rough_asset_start',
       'song_length',
       'x_id',
     ].sort(),
@@ -69,12 +72,14 @@ test('personal form keeps client references separate from the selected Riesz wor
       'budget',
       'delivery_date',
       'email',
+      'illustration_status',
       'name',
       'portfolio_visibility',
       'preferred_plan',
       'production_setup',
       'project_file',
       'request_type',
+      'rough_asset_start',
       'song_length',
     ].sort(),
   })
@@ -97,6 +102,21 @@ test('personal form keeps client references separate from the selected Riesz wor
     '20万円〜25万円',
     '25万円以上',
     '相談したい',
+  ])
+  await expect(readOptions(form, 'illustration_status')).resolves.toEqual([
+    '',
+    '清書済み',
+    'ラフ段階',
+    '制作中',
+    '未定',
+    'イラストなし / 対象外',
+  ])
+  await expect(readOptions(form, 'rough_asset_start')).resolves.toEqual([
+    '',
+    '清書受領後に本制作（推奨）',
+    'ラフ素材から先行を希望（+30,000円〜）',
+    '相談して決めたい',
+    '対象外',
   ])
 
   const clientReferences = form.locator('[name="client_reference_urls"]')
@@ -171,6 +191,10 @@ test('language changes preserve personal form selections and checkboxes', async 
   await form
     .locator('select[name="production_setup"]')
     .selectOption('一部協力クリエイター参加可')
+  await form.locator('select[name="illustration_status"]').selectOption('ラフ段階')
+  await form
+    .locator('select[name="rough_asset_start"]')
+    .selectOption('清書受領後に本制作（推奨）')
   await form.locator('input[name="materials"][value="音源あり"]').check()
 
   await page.getByRole('button', { name: /EN/ }).click()
@@ -179,6 +203,12 @@ test('language changes preserve personal form selections and checkboxes', async 
   await expect(form.locator('select[name="preferred_plan"]')).toHaveValue('相談して決めたい')
   await expect(form.locator('select[name="production_setup"]')).toHaveValue(
     '一部協力クリエイター参加可',
+  )
+  await expect(form.locator('select[name="illustration_status"]')).toHaveValue(
+    'ラフ段階',
+  )
+  await expect(form.locator('select[name="rough_asset_start"]')).toHaveValue(
+    '清書受領後に本制作（推奨）',
   )
   await expect(form.locator('input[name="materials"][value="音源あり"]')).toBeChecked()
 })
@@ -228,6 +258,8 @@ test('business form preserves its submission contract and select values', async 
       'company_url',
       'delivery_date',
       'email',
+      'final_illustration_date',
+      'illustration_status',
       'material_url',
       'media',
       'message',
@@ -239,6 +271,7 @@ test('business form preserves its submission contract and select values', async 
       'project_summary',
       'references',
       'release_date',
+      'rough_asset_start',
       'usage_scope',
     ].sort(),
     required: [
@@ -246,6 +279,7 @@ test('business form preserves its submission contract and select values', async 
       'company',
       'delivery_date',
       'email',
+      'illustration_status',
       'media',
       'name',
       'nda_contract',
@@ -254,6 +288,7 @@ test('business form preserves its submission contract and select values', async 
       'project_summary',
       'references',
       'release_date',
+      'rough_asset_start',
       'usage_scope',
     ].sort(),
   })

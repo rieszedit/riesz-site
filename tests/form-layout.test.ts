@@ -15,10 +15,10 @@ test('defines the approved personal form groups', () => {
   }
 })
 
-test('keeps both Formspree actions and honeypots in place', () => {
+test('keeps both Formspree actions without a client-side silent-drop honeypot', () => {
   assert.match(source, /action={formEndpoints\.personal}/)
   assert.match(source, /action={formEndpoints\.business}/)
-  assert.equal(source.match(/<HoneypotField \/>/g)?.length, 2)
+  assert.doesNotMatch(source, /_gotcha|HoneypotField/)
 })
 
 test('defines the approved business form groups', () => {

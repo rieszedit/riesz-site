@@ -272,7 +272,7 @@ async function handleContactSubmit(
   if (form.action.includes('REPLACE_')) {
     const formData = new FormData(form)
     const body = Array.from(formData.entries())
-      .filter(([key, value]) => key !== '_gotcha' && String(value).trim() !== '')
+      .filter(([, value]) => String(value).trim() !== '')
       .map(([key, value]) => `${key}: ${String(value)}`)
       .join('\n')
 
@@ -285,13 +285,6 @@ async function handleContactSubmit(
 
   const formData = new FormData(form)
 
-  if (String(formData.get('_gotcha') ?? '').trim() !== '') {
-    setStatus('success')
-    form.reset()
-    onSuccess?.()
-    return
-  }
-
   try {
     const response = await fetch(form.action, {
       method: 'POST',
@@ -303,6 +296,17 @@ async function handleContactSubmit(
 
     if (!response.ok) {
       throw new Error(`Form submission failed: ${response.status}`)
+    }
+
+    const result: unknown = await response.json()
+
+    if (
+      typeof result !== 'object' ||
+      result === null ||
+      !('ok' in result) ||
+      result.ok !== true
+    ) {
+      throw new Error('Form submission was not accepted')
     }
 
     setStatus('success')
@@ -502,19 +506,6 @@ function BusinessExperienceSection({ lang }: { lang: Lang }) {
         })}
       </div>
     </section>
-  )
-}
-
-function HoneypotField() {
-  return (
-    <input
-      aria-hidden="true"
-      autoComplete="off"
-      className="hidden-field"
-      name="_gotcha"
-      tabIndex={-1}
-      type="text"
-    />
   )
 }
 
@@ -928,7 +919,6 @@ function PersonalContact({
           )}
       >
         <input type="hidden" name="_subject" value="[Riesz 個人依頼]" />
-        <HoneypotField />
         {workContactPreset && (
           <>
             <input
@@ -1110,7 +1100,6 @@ function BusinessContact({ lang }: { lang: Lang }) {
         onSubmit={(event) => handleContactSubmit(event, '[Riesz 法人依頼]', setSubmitStatus)}
       >
         <input type="hidden" name="_subject" value="[Riesz 法人依頼]" />
-        <HoneypotField />
         <FormSection
           id="business-contact"
           number="01"
@@ -1233,8 +1222,8 @@ function ContactSubmitStatus({ lang, status }: { lang: Lang; status: SubmitStatu
         : 'Sending. Please keep this page open.'
       : status === 'success'
         ? lang === 'ja'
-          ? '相談を受け付けました。内容を確認し、通常3日以内に返信します。'
-          : 'Request received. I will review the details and reply within 3 business days.'
+          ? `相談を受け付けました。内容を確認し、通常3日以内に返信します。3日以内に返信がない場合は ${contactEmail} へ直接ご連絡ください。`
+          : `Request received. I will review the details and reply within 3 business days. If you do not receive a reply within that time, please contact ${contactEmail} directly.`
         : lang === 'ja'
           ? `送信できませんでした。お手数ですが ${contactEmail} へ直接ご連絡ください。`
           : `Could not send the form. Please contact ${contactEmail} directly.`

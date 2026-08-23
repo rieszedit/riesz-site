@@ -28,6 +28,21 @@ async function readOptions(form: Locator, name: string) {
   )
 }
 
+async function fillRequiredPersonalFields(form: Locator) {
+  await form.locator('[name="name"]').fill('送信確認テスト')
+  await form.locator('[name="email"]').fill('rieszedit@gmail.com')
+  await form.locator('[name="request_type"]').selectOption('その他')
+  await form.locator('[name="preferred_plan"]').selectOption('相談して決めたい')
+  await form.locator('[name="budget"]').selectOption('相談したい')
+  await form.locator('[name="delivery_date"]').fill('2026-12-31')
+  await form.locator('[name="song_length"]').selectOption('未定')
+  await form.locator('[name="illustration_status"]').selectOption('イラストなし / 対象外')
+  await form.locator('[name="rough_asset_start"]').selectOption('対象外')
+  await form.locator('[name="production_setup"]').selectOption('内容を見て相談したい')
+  await form.locator('[name="portfolio_visibility"]').selectOption('相談したい')
+  await form.locator('[name="project_file"]').selectOption('希望しない')
+}
+
 async function expectNoHorizontalOverflow(page: Page, path: string, width: number) {
   await page.setViewportSize({ width, height: 900 })
   await page.goto(path, { waitUntil: 'domcontentloaded' })
@@ -45,7 +60,6 @@ test('personal form keeps client references separate from the selected Riesz wor
 
   await expect(readFormContract(form)).resolves.toEqual({
     names: [
-      '_gotcha',
       '_subject',
       'budget',
       'client_reference_urls',
@@ -145,6 +159,52 @@ test('personal form keeps client references separate from the selected Riesz wor
   await expect(clientReferences).toHaveValue(
     'https://www.youtube.com/watch?v=client-reference\nhttps://vimeo.com/client-reference',
   )
+})
+
+test('personal form keeps the inquiry when Formspree does not confirm acceptance', async ({
+  page,
+}) => {
+  await page.route('https://formspree.io/f/test-personal', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ ok: false }),
+    })
+  })
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
+  const form = page.locator('form.contact-form')
+
+  await fillRequiredPersonalFields(form)
+  await page.getByRole('button', { name: '見積もり相談を送る' }).click()
+
+  await expect(page.getByRole('alert')).toContainText('送信できませんでした')
+  await expect(form.locator('[name="name"]')).toHaveValue('送信確認テスト')
+})
+
+test('personal form confirms accepted delivery and shows the direct-email fallback', async ({
+  page,
+}) => {
+  let submissionCount = 0
+  await page.route('https://formspree.io/f/test-personal', async (route) => {
+    submissionCount += 1
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({ ok: true }),
+    })
+  })
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
+  const form = page.locator('form.contact-form')
+
+  await fillRequiredPersonalFields(form)
+  await page.getByRole('button', { name: '見積もり相談を送る' }).click()
+
+  const status = page.getByRole('status')
+  await expect(status).toContainText('相談を受け付けました')
+  await expect(status).toContainText('3日以内に返信がない場合')
+  await expect(status).toContainText('rieszedit@gmail.com')
+  await expect(form.locator('[name="name"]')).toHaveValue('')
+  expect(submissionCount).toBe(1)
 })
 
 test('selected Riesz work can be cleared without erasing the inquiry details', async ({
@@ -250,7 +310,6 @@ test('business form preserves its submission contract and select values', async 
 
   await expect(readFormContract(form)).resolves.toEqual({
     names: [
-      '_gotcha',
       '_subject',
       'budget',
       'collaborator_participation',

@@ -1248,21 +1248,6 @@ button {
   background: rgba(242, 242, 242, 0.06);
 }
 
-.hidden-field {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: 0;
-  border: 0;
-  padding: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  opacity: 0;
-  pointer-events: none;
-  white-space: nowrap;
-}
-
 .business-hero {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(340px, 0.44fr);

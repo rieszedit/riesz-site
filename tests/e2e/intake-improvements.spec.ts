@@ -85,6 +85,9 @@ test('prices display tax-inclusive amounts with the agreed plan scope', async ({
   }
   await expect(page.locator('.pricing-comparison')).toContainText('Riesz Main')
   await expect(page.locator('.pricing-comparison')).toContainText('Hybrid')
+  await page.locator('.pricing-comparison a').first().click()
+  await expect.poll(async () => (await page.locator('#tier-main-standard').boundingBox())?.y).toBeGreaterThanOrEqual(76)
+  await expect.poll(async () => (await page.locator('#tier-main-standard').boundingBox())?.y).toBeLessThan(150)
 })
 
 test('initial inquiry requires only the essential fields', async ({ page }) => {

@@ -1340,7 +1340,8 @@ button {
   color: var(--accent);
 }
 
-section[id] {
+section[id],
+.pricing-tier[id] {
   scroll-margin-top: 100px;
 }
 
@@ -1573,7 +1574,8 @@ section[id] {
 }
 
 @media (max-width: 760px) {
-  section[id] {
+  section[id],
+  .pricing-tier[id] {
     scroll-margin-top: 20px;
   }
   .pricing-comparison th,

@@ -2,13 +2,14 @@ import {
   ArrowUpRight,
   Building2,
   Check,
+  Copy,
   Languages,
   Mail,
   Play,
   Send,
   X,
 } from 'lucide-react'
-import type { ChangeEvent, FormEvent, ReactNode } from 'react'
+import type { ChangeEvent, ReactNode } from 'react'
 import { useEffect, useState } from 'react'
 import './App.css'
 import {
@@ -22,6 +23,7 @@ import {
 import {
   budgetOptions,
   businessPortfolioOptions,
+  businessProjectFileOptions,
   illustrationStatusOptions,
   materialOptions,
   ndaOptions,
@@ -45,10 +47,15 @@ import {
 import type { Language } from './language-preference'
 import { businessWorks, works } from './portfolio-content'
 import type { WorkItem } from './portfolio-content'
+import { contactEmail } from './contact-delivery'
+import { useContactDelivery } from './use-contact-delivery'
+import type { SubmitStatus } from './use-contact-delivery'
+import { ContactChallenge } from './ContactChallenge'
+import { turnstileSiteKey } from './turnstile-config'
+import { PrivacyPage } from './PrivacyPage'
 
 type Lang = Language
-type Page = 'personal' | 'business'
-type SubmitStatus = 'idle' | 'submitting' | 'success' | 'error'
+type Page = 'personal' | 'business' | 'privacy'
 type WorkContactPreset = {
   title: string
   titleEn: string
@@ -58,7 +65,6 @@ type WorkContactPreset = {
   workUrl: string
 }
 
-const contactEmail = 'rieszedit@gmail.com'
 const xUrl = 'https://x.com/Riesz_edit'
 const boothUrl = 'https://rieszedit.booth.pm/'
 
@@ -179,20 +185,63 @@ function App() {
   useEffect(() => {
     writeBrowserLanguagePreference(lang)
     document.documentElement.lang = lang
-    document.title = isBusiness
-      ? lang === 'ja'
-        ? 'Riesz for Business | MV / Design / Direction'
-        : 'Riesz for Business | Music Video / Design / Direction'
-      : lang === 'ja'
-        ? 'Riesz | MV / Design / Direction'
-        : 'Riesz | Music Video / Design / Direction'
-  }, [isBusiness, lang])
+    document.title =
+      page === 'privacy'
+        ? lang === 'ja'
+          ? 'プライバシー | Riesz'
+          : 'Privacy | Riesz'
+        : isBusiness
+          ? lang === 'ja'
+            ? 'Riesz for Business | MV / Design / Direction'
+            : 'Riesz for Business | Music Video / Design / Direction'
+          : lang === 'ja'
+            ? 'Riesz | MV / Design / Direction'
+            : 'Riesz | Music Video / Design / Direction'
+  }, [isBusiness, lang, page])
+
+  useEffect(() => {
+    if (!location.hash) return
+    let cancelled = false
+    const navigate = () => {
+      if (cancelled) return
+      let id: string
+      try {
+        id = decodeURIComponent(location.hash.slice(1))
+      } catch {
+        return
+      }
+      document
+        .getElementById(id)
+        ?.scrollIntoView({ behavior: 'instant', block: 'start' })
+    }
+    const stop = () => {
+      cancelled = true
+    }
+    const frame = requestAnimationFrame(navigate)
+    void document.fonts.ready.then(navigate)
+    window.addEventListener('wheel', stop, { once: true, passive: true })
+    window.addEventListener('touchstart', stop, { once: true, passive: true })
+    window.addEventListener('keydown', stop, { once: true })
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(frame)
+      window.removeEventListener('wheel', stop)
+      window.removeEventListener('touchstart', stop)
+      window.removeEventListener('keydown', stop)
+    }
+  }, [page])
 
   return (
     <div className="site-shell">
       <AnalyticsBeacon />
       <Header lang={lang} setLang={setLang} page={page} />
-      {isBusiness ? <BusinessPage lang={lang} /> : <PersonalPage lang={lang} />}
+      {page === 'privacy' ? (
+        <PrivacyPage lang={lang} />
+      ) : isBusiness ? (
+        <BusinessPage lang={lang} />
+      ) : (
+        <PersonalPage lang={lang} />
+      )}
       <Footer lang={lang} />
     </div>
   )
@@ -231,6 +280,7 @@ function AnalyticsBeacon() {
 
 function getPage(): Page {
   const root = document.getElementById('root')
+  if (root?.dataset.page === 'privacy') return 'privacy'
   return root?.dataset.page === 'business' ? 'business' : 'personal'
 }
 
@@ -258,65 +308,6 @@ function useStaticHeroMedia() {
   return renderStaticHero
 }
 
-async function handleContactSubmit(
-  event: FormEvent<HTMLFormElement>,
-  subject: string,
-  setStatus: (status: SubmitStatus) => void,
-  onSuccess?: () => void,
-) {
-  const form = event.currentTarget
-
-  event.preventDefault()
-  setStatus('submitting')
-
-  if (form.action.includes('REPLACE_')) {
-    const formData = new FormData(form)
-    const body = Array.from(formData.entries())
-      .filter(([, value]) => String(value).trim() !== '')
-      .map(([key, value]) => `${key}: ${String(value)}`)
-      .join('\n')
-
-    window.location.href = `mailto:${contactEmail}?subject=${encodeURIComponent(
-      subject,
-    )}&body=${encodeURIComponent(body)}`
-    setStatus('idle')
-    return
-  }
-
-  const formData = new FormData(form)
-
-  try {
-    const response = await fetch(form.action, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-      },
-      body: formData,
-    })
-
-    if (!response.ok) {
-      throw new Error(`Form submission failed: ${response.status}`)
-    }
-
-    const result: unknown = await response.json()
-
-    if (
-      typeof result !== 'object' ||
-      result === null ||
-      !('ok' in result) ||
-      result.ok !== true
-    ) {
-      throw new Error('Form submission was not accepted')
-    }
-
-    setStatus('success')
-    form.reset()
-    onSuccess?.()
-  } catch {
-    setStatus('error')
-  }
-}
-
 function Header({
   lang,
   setLang,
@@ -334,10 +325,13 @@ function Header({
         Riesz
       </a>
       <nav className="nav-links" aria-label="Primary navigation">
-        <a href={page === 'business' ? '/#works' : '#works'}>Works</a>
-        <a href={page === 'business' ? '/#pricing' : '#pricing'}>Pricing</a>
+        <a href={page !== 'personal' ? '/#works' : '#works'}>Works</a>
+        <a href={page !== 'personal' ? '/#pricing' : '#pricing'}>Pricing</a>
         <a href="/business/">Business</a>
-        <a className="contact-pill" href="#contact">
+        <a
+          className="contact-pill"
+          href={page === 'privacy' ? '/#contact' : '#contact'}
+        >
           <span className="contact-pill__label">Contact</span>
           <span className="contact-pill__dot" aria-hidden="true" />
         </a>
@@ -363,7 +357,21 @@ function PersonalPage({ lang }: { lang: Lang }) {
     <main>
       <Hero lang={lang} />
       <WorksSection lang={lang} onWorkContactSelect={setWorkContactPreset} />
-      <PricingSection lang={lang} />
+      <PricingSection
+        lang={lang}
+        onPlanSelect={(name) =>
+          setWorkContactPreset({
+            title: name,
+            titleEn: name,
+            workUrl: '',
+            ...getWorkScalePreset(
+              name.startsWith('Hybrid')
+                ? [name]
+                : [name.endsWith('Standard') ? 'Standard' : 'Flagship'],
+            ),
+          })
+        }
+      />
       <FlowSection
         lang={lang}
         titleJa="制作の流れ"
@@ -390,14 +398,14 @@ function BusinessPage({ lang }: { lang: Lang }) {
             {lang === 'ja' ? 'Business / Corporate' : 'Business / Corporate'}
           </div>
           <h1>
-            {lang === 'ja'
-              ? (
-                  <>
-                    <span>法人・企業</span>
-                    <span>案件のご相談</span>
-                  </>
-                )
-              : 'Business and Corporate Projects'}
+            {lang === 'ja' ? (
+              <>
+                <span>法人・企業</span>
+                <span>案件のご相談</span>
+              </>
+            ) : (
+              'Business and Corporate Projects'
+            )}
           </h1>
           <p>
             {lang === 'ja'
@@ -456,7 +464,9 @@ function BusinessExperienceSection({ lang }: { lang: Lang }) {
       <div className="section-heading">
         <p>Selected Corporate Work</p>
         <h2 id="business-work-title">
-          {isJapanese ? '法人・大型IPの公開実績' : 'Public Corporate and Major-IP Work'}
+          {isJapanese
+            ? '法人・大型IPの公開実績'
+            : 'Public Corporate and Major-IP Work'}
         </h2>
       </div>
       <p className="business-work-lead">
@@ -615,7 +625,11 @@ function WorksSection({
             </a>
             <div className="work-card__body">
               <h3
-                className={work.compactTitle ? 'work-title work-title--compact' : 'work-title'}
+                className={
+                  work.compactTitle
+                    ? 'work-title work-title--compact'
+                    : 'work-title'
+                }
               >
                 {lang === 'ja' ? work.title : work.titleEn}
               </h3>
@@ -634,7 +648,9 @@ function WorksSection({
               <a
                 className="work-contact-link"
                 href="#contact"
-                onClick={() => onWorkContactSelect(createWorkContactPreset(work))}
+                onClick={() =>
+                  onWorkContactSelect(createWorkContactPreset(work))
+                }
                 aria-label={`${
                   lang === 'ja' ? 'この規模で相談する' : 'Request similar style'
                 }: ${lang === 'ja' ? work.title : work.titleEn}`}
@@ -650,7 +666,13 @@ function WorksSection({
   )
 }
 
-function PricingSection({ lang }: { lang: Lang }) {
+function PricingSection({
+  lang,
+  onPlanSelect,
+}: {
+  lang: Lang
+  onPlanSelect: (name: string) => void
+}) {
   const isJapanese = lang === 'ja'
 
   return (
@@ -661,15 +683,20 @@ function PricingSection({ lang }: { lang: Lang }) {
       </div>
       <p className="pricing-lead">
         {isJapanese
-          ? 'まず「誰が制作を主導するか」を選び、その後に作り込み量をお選びください。最終金額は楽曲尺、素材状況、納期、表現量によってお見積もりします。'
-          : 'First choose who leads production, then choose the development level. Final estimates depend on song length, materials, timeline, and expression volume.'}
+          ? '制作体制と演出の作り込み量から選べる、個人向けの料金目安です。最終金額は楽曲尺、素材状況、納期、表現量によってお見積もりします。太字は税別、下段は税込目安です。'
+          : 'Indicative prices for individual commissions, grouped by production team and creative scope. Final estimates depend on song length, assets, timeline, and visual complexity. Bold prices are before tax; totals including tax appear below.'}
       </p>
 
-      <ol className="pricing-steps" aria-label={isJapanese ? 'プランの選び方' : 'How to choose a plan'}>
+      <ol
+        className="pricing-steps"
+        aria-label={isJapanese ? 'プランの選び方' : 'How to choose a plan'}
+      >
         <li>
           <span>01</span>
           <div>
-            <strong>{isJapanese ? '制作主導を選ぶ' : 'Choose the production lead'}</strong>
+            <strong>
+              {isJapanese ? '制作体制を選ぶ' : 'Choose the production team'}
+            </strong>
             <p>
               {isJapanese
                 ? 'Riesz本人 / Rieszと協力クリエイター / 協力クリエイター主体'
@@ -680,7 +707,9 @@ function PricingSection({ lang }: { lang: Lang }) {
         <li>
           <span>02</span>
           <div>
-            <strong>{isJapanese ? '作り込み量を選ぶ' : 'Choose the development level'}</strong>
+            <strong>
+              {isJapanese ? '作り込み量を選ぶ' : 'Choose the development level'}
+            </strong>
             <p>
               {isJapanese
                 ? 'Standardは通常規模、Flagshipは代表作向けの高密度制作'
@@ -690,9 +719,67 @@ function PricingSection({ lang }: { lang: Lang }) {
         </li>
       </ol>
 
+      <div
+        className="pricing-comparison"
+        role="region"
+        aria-label={isJapanese ? 'プラン比較' : 'Plan comparison'}
+        tabIndex={0}
+      >
+        <table>
+          <caption>
+            {isJapanese
+              ? '映像はどちらもRieszが主導。リリック担当と演出の作り込み量で選べます。'
+              : 'Both routes are led by Riesz. Choose the lyric designer and production scope.'}
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">{isJapanese ? '制作規模' : 'Scope'}</th>
+              <th scope="col">Riesz Main</th>
+              <th scope="col">Hybrid</th>
+            </tr>
+          </thead>
+          <tbody>
+            {['standard', 'flagship'].map((id) => (
+              <tr key={id}>
+                <th scope="row">
+                  {id === 'standard' ? 'Standard' : 'Flagship'}
+                </th>
+                {pricingRoutes.map((route) => {
+                  const tier = route.tiers.find((item) => item.id === id)!
+                  return (
+                    <td key={route.id}>
+                      <a href={`#tier-${route.id}-${id}`}>
+                        {isJapanese ? tier.priceJa : tier.priceEn}
+                      </a>
+                      <small>
+                        {isJapanese
+                          ? `税込${tier.priceWithTax.toLocaleString('ja-JP')}円〜`
+                          : `JPY ${tier.priceWithTax.toLocaleString('en-US')} incl. 10% tax`}
+                      </small>
+                    </td>
+                  )
+                })}
+              </tr>
+            ))}
+            <tr>
+              <th scope="row">{isJapanese ? 'リリック' : 'Lyrics'}</th>
+              <td>Riesz</td>
+              <td>{isJapanese ? '専門クリエイター' : 'Lyric specialist'}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p className="pricing-scope">
+        {isJapanese
+          ? 'Standardは支給素材を活かして曲の見せ場を構成。Flagshipはシーンごとの個別デザインや展開を増やします。新規イラスト・3D素材、別尺版、サムネイル制作は内容に応じて別途見積もり。納品形式・解像度・素材範囲は見積書で確定します。'
+          : 'Standard focuses on song highlights using supplied assets. Flagship adds bespoke scene designs and transitions. New illustrations, 3D assets, alternate cuts, and thumbnails are quoted separately where needed. Delivery format, resolution, and asset scope are confirmed in the quote.'}
+      </p>
       <div className="pricing-routes">
         {pricingRoutes.map((route) => (
-          <section className={`pricing-route pricing-route--${route.id}`} key={route.id}>
+          <section
+            className={`pricing-route pricing-route--${route.id}`}
+            key={route.id}
+          >
             <header className="pricing-route__header">
               <span>{isJapanese ? route.labelJa : route.labelEn}</span>
               <h3>{route.name}</h3>
@@ -701,13 +788,28 @@ function PricingSection({ lang }: { lang: Lang }) {
 
             <div className="pricing-route__tiers">
               {route.tiers.map((tier) => (
-                <article className="pricing-tier" key={tier.name}>
+                <article
+                  className="pricing-tier"
+                  id={`tier-${route.id}-${tier.id}`}
+                  key={tier.name}
+                >
                   <div className="pricing-tier__heading">
                     <div>
-                      <span>{tier.id === 'standard' ? 'Standard' : 'Flagship'}</span>
+                      <span>
+                        {tier.id === 'standard' ? 'Standard' : 'Flagship'}
+                      </span>
                       <h4>{tier.name}</h4>
                     </div>
-                    <strong>{isJapanese ? tier.priceJa : tier.priceEn}</strong>
+                    <div className="pricing-tier__price">
+                      <strong>
+                        {isJapanese ? tier.priceJa : tier.priceEn}
+                      </strong>
+                      <small>
+                        {isJapanese
+                          ? `税込${tier.priceWithTax.toLocaleString('ja-JP')}円〜`
+                          : `JPY ${tier.priceWithTax.toLocaleString('en-US')} incl. 10% tax`}
+                      </small>
+                    </div>
                   </div>
 
                   <p className="pricing-tier__summary">
@@ -717,7 +819,9 @@ function PricingSection({ lang }: { lang: Lang }) {
                   <dl className="pricing-tier__details">
                     <div>
                       <dt>{isJapanese ? '制作' : 'Production'}</dt>
-                      <dd>{isJapanese ? tier.productionJa : tier.productionEn}</dd>
+                      <dd>
+                        {isJapanese ? tier.productionJa : tier.productionEn}
+                      </dd>
                     </div>
                     <div>
                       <dt>{isJapanese ? 'リリック' : 'Lyric design'}</dt>
@@ -725,7 +829,9 @@ function PricingSection({ lang }: { lang: Lang }) {
                     </div>
                     <div>
                       <dt>{isJapanese ? '作り込み' : 'Development'}</dt>
-                      <dd>{isJapanese ? tier.developmentJa : tier.developmentEn}</dd>
+                      <dd>
+                        {isJapanese ? tier.developmentJa : tier.developmentEn}
+                      </dd>
                     </div>
                     <div>
                       <dt>{isJapanese ? '向いている依頼' : 'Best for'}</dt>
@@ -745,6 +851,14 @@ function PricingSection({ lang }: { lang: Lang }) {
                       : tier.representativeWork.titleEn}
                     <ArrowUpRight size={14} aria-hidden="true" />
                   </a>
+                  <a
+                    className="plan-contact-link"
+                    href="#contact"
+                    onClick={() => onPlanSelect(tier.name)}
+                  >
+                    <Send size={15} aria-hidden="true" />
+                    {isJapanese ? 'このプランで相談' : 'Ask about this plan'}
+                  </a>
                 </article>
               ))}
             </div>
@@ -756,7 +870,9 @@ function PricingSection({ lang }: { lang: Lang }) {
         <header>
           <span>{isJapanese ? 'その他の選択肢' : 'Other options'}</span>
           <h3 id="support-plans-title">
-            {isJapanese ? '予算・用途から相談する' : 'Choose by budget or format'}
+            {isJapanese
+              ? '予算・用途から相談する'
+              : 'Choose by budget or format'}
           </h3>
         </header>
         <div className="support-plan-grid">
@@ -764,7 +880,10 @@ function PricingSection({ lang }: { lang: Lang }) {
             <article className="support-plan" key={plan.id}>
               <div className="support-plan__heading">
                 <h4>{plan.name}</h4>
-                <strong>{isJapanese ? plan.priceJa : plan.priceEn}</strong>
+                <div className="pricing-tier__price">
+                  <strong>{isJapanese ? plan.priceJa : plan.priceEn}</strong>
+                  <small>{isJapanese ? plan.taxJa : plan.taxEn}</small>
+                </div>
               </div>
               <p className="support-plan__lead">
                 {isJapanese ? plan.leadJa : plan.leadEn}
@@ -834,6 +953,8 @@ function NotesSection({ lang }: { lang: Lang }) {
 }
 
 function IllustrationScheduleFields({ lang }: { lang: Lang }) {
+  const [illustrationStatus, setIllustrationStatus] = useState('')
+  const needsFinalArtwork = ['ラフ段階', '制作中'].includes(illustrationStatus)
   return (
     <>
       <div className="form-row">
@@ -842,34 +963,42 @@ function IllustrationScheduleFields({ lang }: { lang: Lang }) {
           label={lang === 'ja' ? 'イラストの進行状況' : 'Illustration status'}
           name="illustration_status"
           options={illustrationStatusOptions}
-          required
+          value={illustrationStatus}
+          onValueChange={setIllustrationStatus}
         />
-        <Field
+        {needsFinalArtwork && (
+          <Field
+            label={
+              lang === 'ja'
+                ? '清書イラスト提出予定日'
+                : 'Expected final artwork date'
+            }
+            name="final_illustration_date"
+            helper={
+              lang === 'ja'
+                ? '未定・対象外の場合は空欄で問題ありません。'
+                : 'Leave blank if TBD or not applicable.'
+            }
+          />
+        )}
+      </div>
+      {needsFinalArtwork && (
+        <Select
+          lang={lang}
           label={
             lang === 'ja'
-              ? '清書イラスト提出予定日'
-              : 'Expected final artwork date'
+              ? 'ラフ素材での先行進行'
+              : 'Starting from rough artwork'
           }
-          name="final_illustration_date"
+          name="rough_asset_start"
+          options={roughAssetStartOptions}
           helper={
             lang === 'ja'
-              ? '未定・対象外の場合は空欄で問題ありません。'
-              : 'Leave blank if TBD or not applicable.'
+              ? '清書受領後の本制作が基本です。ラフ先行は +30,000円〜（税込33,000円〜）。条件と費用は見積もり時に再確認します。'
+              : 'Final production normally starts after final artwork is received. Rough-art starts are +JPY 30,000 before tax (JPY 33,000 incl. tax). Conditions and fees are reconfirmed in the quote.'
           }
         />
-      </div>
-      <Select
-        lang={lang}
-        label={lang === 'ja' ? 'ラフ素材での先行進行' : 'Starting from rough artwork'}
-        name="rough_asset_start"
-        options={roughAssetStartOptions}
-        helper={
-          lang === 'ja'
-            ? '清書受領後の本制作が基本です。ラフ先行は +30,000円〜（税別）で、内容により追加見積もり・納期調整となります。'
-            : 'Final production normally starts after final artwork is received. Rough-art starts are +JPY 30,000 before tax and may require further estimation or schedule adjustment.'
-        }
-        required
-      />
+      )}
     </>
   )
 }
@@ -883,25 +1012,22 @@ function PersonalContact({
   workContactPreset: WorkContactPreset | null
   onClearWorkContactPreset: () => void
 }) {
-  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle')
   const [preferredPlan, setPreferredPlan] = useState('')
   const [budget, setBudget] = useState('')
-
-  useEffect(() => {
-    if (!workContactPreset) {
-      return
-    }
-
-    setPreferredPlan(workContactPreset.plan)
-    setBudget(workContactPreset.budgetJa)
-    setSubmitStatus('idle')
-  }, [workContactPreset])
 
   const resetControlledFields = () => {
     setPreferredPlan('')
     setBudget('')
     onClearWorkContactPreset()
   }
+  const delivery = useContactDelivery('personal', resetControlledFields)
+  const clearDeliveryStatus = delivery.onInput
+  useEffect(() => {
+    if (!workContactPreset) return
+    setPreferredPlan(workContactPreset.plan)
+    setBudget(workContactPreset.budgetJa)
+    clearDeliveryStatus()
+  }, [workContactPreset, clearDeliveryStatus])
 
   return (
     <section className="contact-section" id="contact">
@@ -910,185 +1036,250 @@ function PersonalContact({
         action={formEndpoints.personal}
         method="POST"
         className="contact-form"
-        onSubmit={(event) =>
-          handleContactSubmit(
-            event,
-            '[Riesz 個人依頼]',
-            setSubmitStatus,
-            resetControlledFields,
-          )}
+        ref={delivery.formRef}
+        onInput={delivery.onInput}
+        onSubmit={delivery.onSubmit}
       >
-        <input type="hidden" name="_subject" value="[Riesz 個人依頼]" />
-        {workContactPreset && (
-          <>
-            <input
-              type="hidden"
-              name="riesz_reference_work"
-              value={workContactPreset.title}
-            />
-            <input
-              type="hidden"
-              name="riesz_reference_url"
-              value={workContactPreset.workUrl}
-            />
-            <div className="contact-preset">
-              <div className="contact-preset__header">
-                <p role="status" aria-live="polite">
+        <fieldset
+          className="contact-form__body"
+          disabled={delivery.status === 'submitting'}
+        >
+          <input type="hidden" name="_subject" value="[Riesz 個人依頼]" />
+          {workContactPreset && (
+            <>
+              {workContactPreset.workUrl && (
+                <>
+                  <input
+                    type="hidden"
+                    name="riesz_reference_work"
+                    value={workContactPreset.title}
+                  />
+                  <input
+                    type="hidden"
+                    name="riesz_reference_url"
+                    value={workContactPreset.workUrl}
+                  />
+                </>
+              )}
+              <div className="contact-preset">
+                <div className="contact-preset__header">
+                  <p role="status" aria-live="polite">
+                    {lang === 'ja'
+                      ? workContactPreset.workUrl
+                        ? `「${workContactPreset.title}」に近い規模で相談中`
+                        : `${workContactPreset.plan}で相談中`
+                      : workContactPreset.workUrl
+                        ? `Using ${workContactPreset.titleEn} as the Riesz work reference`
+                        : `Selected plan: ${workContactPreset.plan}`}
+                  </p>
+                  <button
+                    className="contact-preset__clear"
+                    type="button"
+                    onClick={onClearWorkContactPreset}
+                  >
+                    <X size={15} aria-hidden="true" />
+                    {lang === 'ja' ? '選択を解除' : 'Clear selection'}
+                  </button>
+                </div>
+                <span className="contact-preset__description">
                   {lang === 'ja'
-                    ? `「${workContactPreset.title}」に近い規模で相談中`
-                    : `Using ${workContactPreset.titleEn} as the Riesz work reference`}
-                </p>
-                <button
-                  className="contact-preset__clear"
-                  type="button"
-                  onClick={onClearWorkContactPreset}
-                >
-                  <X size={15} aria-hidden="true" />
-                  {lang === 'ja' ? '作品の選択を解除' : 'Clear work selection'}
-                </button>
+                    ? '希望プランと予算帯を入力しました。内容は自由に変更できます。'
+                    : 'The plan and budget range are prefilled. You can edit them freely.'}
+                </span>
               </div>
-              <span className="contact-preset__description">
-                {lang === 'ja'
-                  ? '希望プランと予算帯を入力しました。内容は自由に変更できます。'
-                  : 'The plan and budget range are prefilled. You can edit them freely.'}
-              </span>
-            </div>
-          </>
-        )}
-        <FormSection
-          id="personal-contact"
-          number="01"
-          title={lang === 'ja' ? 'ご連絡先' : 'Contact'}
-          subtitle={lang === 'ja' ? 'Contact' : 'Your details'}
-        >
-          <Field label={lang === 'ja' ? '名前 / 活動名' : 'Name / Artist name'} name="name" required />
-          <Field label={lang === 'ja' ? 'メールアドレス' : 'Email'} name="email" type="email" required />
-          <div className="form-row">
-            <Field label="Discord ID" name="discord" />
-            <Field label="X ID" name="x_id" />
-          </div>
-        </FormSection>
+            </>
+          )}
+          <FormSection
+            id="personal-contact"
+            number="01"
+            title={lang === 'ja' ? 'ご連絡先' : 'Contact'}
+            subtitle={lang === 'ja' ? 'Contact' : 'Your details'}
+          >
+            <Field
+              label={lang === 'ja' ? '名前 / 活動名' : 'Name / Artist name'}
+              name="name"
+              required
+            />
+            <Field
+              label={lang === 'ja' ? 'メールアドレス' : 'Email'}
+              name="email"
+              type="email"
+              required
+            />
+          </FormSection>
 
-        <FormSection
-          id="personal-request"
-          number="02"
-          title={lang === 'ja' ? 'ご依頼内容' : 'Request'}
-          subtitle={lang === 'ja' ? 'Request' : 'Scope and budget'}
-        >
-          <Select
-            lang={lang}
-            label={lang === 'ja' ? '依頼内容' : 'Request type'}
-            name="request_type"
-            options={personalRequestTypeOptions}
-            required
-          />
-          <Select
-            lang={lang}
-            label={lang === 'ja' ? '希望プラン' : 'Preferred plan'}
-            name="preferred_plan"
-            options={preferredPlanOptions}
-            required
-            value={preferredPlan}
-            onValueChange={setPreferredPlan}
-          />
-          <Select
-            lang={lang}
-            label={lang === 'ja' ? '予算帯' : 'Budget range'}
-            name="budget"
-            options={budgetOptions}
-            required
-            value={budget}
-            onValueChange={setBudget}
-          />
-        </FormSection>
+          <FormSection
+            id="personal-request"
+            number="02"
+            title={lang === 'ja' ? 'ご依頼内容' : 'Request'}
+            subtitle={lang === 'ja' ? 'Request' : 'Scope and budget'}
+          >
+            <Select
+              lang={lang}
+              label={lang === 'ja' ? '依頼内容' : 'Request type'}
+              name="request_type"
+              options={personalRequestTypeOptions}
+              required
+            />
+            <Select
+              lang={lang}
+              label={lang === 'ja' ? '希望プラン' : 'Preferred plan'}
+              name="preferred_plan"
+              options={preferredPlanOptions}
+              value={preferredPlan}
+              onValueChange={setPreferredPlan}
+            />
+            <Select
+              lang={lang}
+              label={
+                lang === 'ja' ? '予算帯（税別）' : 'Budget range (before tax)'
+              }
+              name="budget"
+              options={budgetOptions}
+              required
+              value={budget}
+              onValueChange={setBudget}
+            />
+            <Field
+              label={lang === 'ja' ? '希望納期' : 'Preferred delivery date'}
+              name="delivery_date"
+              helper={
+                lang === 'ja'
+                  ? '未定の場合は「未定」で構いません。'
+                  : 'TBD is fine if not decided.'
+              }
+              required
+            />
+            <TextArea
+              label={
+                lang === 'ja'
+                  ? '案件概要・希望する映像'
+                  : 'Project summary / desired movie'
+              }
+              name="message"
+              required
+            />
+            <TextArea
+              label={
+                lang === 'ja'
+                  ? '希望する表現の参考映像URL'
+                  : 'Client reference video URLs'
+              }
+              name="client_reference_urls"
+              helper={
+                lang === 'ja'
+                  ? 'お客様がお持ちの参考映像があれば、URLを1行ずつご記入ください。'
+                  : 'Your own reference videos, one URL per line, if available.'
+              }
+            />
+          </FormSection>
 
-        <FormSection
-          id="personal-schedule"
-          number="03"
-          title={lang === 'ja' ? '納期・素材' : 'Schedule & Materials'}
-          subtitle={lang === 'ja' ? 'Schedule & Materials' : 'Timing and source files'}
-        >
-          <div className="form-row">
-            <Field label={lang === 'ja' ? '希望納期' : 'Preferred delivery date'} name="delivery_date" required />
-            <Field label={lang === 'ja' ? '公開予定日' : 'Planned release date'} name="release_date" />
-          </div>
-          <Select
-            lang={lang}
-            label={lang === 'ja' ? '楽曲尺' : 'Song length'}
-            name="song_length"
-            options={songLengthOptions}
-            required
-          />
-          <CheckboxGroup
-            lang={lang}
-            label={lang === 'ja' ? '素材状況' : 'Available materials'}
-            name="materials"
-            options={materialOptions}
-          />
-          <IllustrationScheduleFields lang={lang} />
-          <TextArea
-            label={
-              lang === 'ja'
-                ? '希望する表現の参考映像URL'
-                : 'Client reference video URLs'
-            }
-            name="client_reference_urls"
-            helper={
-              lang === 'ja'
-                ? '完成イメージに近い映像があれば、URLを1行ずつご記入ください。'
-                : 'If you have examples close to the desired result, enter one URL per line.'
-            }
-          />
-          <Field label={lang === 'ja' ? '素材URL' : 'Material URL'} name="material_url" />
-        </FormSection>
+          <details className="form-optional">
+            <summary>
+              {lang === 'ja'
+                ? '素材・公開予定・制作条件（任意）'
+                : 'Materials, release and production details (optional)'}
+            </summary>
+            <FormSection
+              id="personal-schedule"
+              number="03"
+              title={lang === 'ja' ? '納期・素材' : 'Schedule & Materials'}
+              subtitle={
+                lang === 'ja'
+                  ? 'Schedule & Materials'
+                  : 'Timing and source files'
+              }
+            >
+              <div className="form-row">
+                <Field label="Discord ID" name="discord" />
+                <Field label="X ID" name="x_id" />
+              </div>
+              <div className="form-row">
+                <Field
+                  label={lang === 'ja' ? '公開予定日' : 'Planned release date'}
+                  name="release_date"
+                />
+              </div>
+              <Select
+                lang={lang}
+                label={lang === 'ja' ? '楽曲尺' : 'Song length'}
+                name="song_length"
+                options={songLengthOptions}
+              />
+              <CheckboxGroup
+                lang={lang}
+                label={lang === 'ja' ? '素材状況' : 'Available materials'}
+                name="materials"
+                options={materialOptions}
+              />
+              <IllustrationScheduleFields
+                lang={lang}
+                key={delivery.resetVersion}
+              />
+              <Field
+                label={lang === 'ja' ? '素材URL' : 'Material URL'}
+                name="material_url"
+              />
+            </FormSection>
 
-        <FormSection
-          id="personal-terms"
-          number="04"
-          title={lang === 'ja' ? '制作条件' : 'Production Terms'}
-          subtitle={lang === 'ja' ? 'Production Terms' : 'Ownership and delivery'}
-        >
-          <Select
-            lang={lang}
-            label={lang === 'ja' ? '制作体制の希望' : 'Production setup'}
-            name="production_setup"
-            options={personalSetupOptions}
-            required
-          />
-          <Select
-            lang={lang}
-            label={lang === 'ja' ? '実績掲載の可否' : 'Portfolio visibility'}
-            name="portfolio_visibility"
-            options={personalPortfolioOptions}
-            required
-          />
-          <Select
-            lang={lang}
-            label={lang === 'ja' ? 'プロジェクトファイル納品' : 'Project file delivery'}
-            name="project_file"
-            options={projectFileOptions}
-            required
-          />
-          <TextArea label={lang === 'ja' ? 'その他' : 'Additional notes'} name="message" />
-        </FormSection>
-        <button className="submit-button" type="submit" disabled={submitStatus === 'submitting'}>
-          <Mail size={17} aria-hidden="true" />
-          {submitStatus === 'submitting'
-            ? lang === 'ja'
-              ? '送信中'
-              : 'Sending'
-            : lang === 'ja'
-              ? '見積もり相談を送る'
-              : 'Send Estimate Request'}
-        </button>
-        <ContactSubmitStatus lang={lang} status={submitStatus} />
+            <FormSection
+              id="personal-terms"
+              number="04"
+              title={lang === 'ja' ? '制作条件' : 'Production Terms'}
+              subtitle={
+                lang === 'ja' ? 'Production Terms' : 'Ownership and delivery'
+              }
+            >
+              <Select
+                lang={lang}
+                label={lang === 'ja' ? '制作体制の希望' : 'Production setup'}
+                name="production_setup"
+                options={personalSetupOptions}
+                helper={
+                  lang === 'ja'
+                    ? '未選択は外注への同意ではありません。参加者と担当範囲は契約前に確認します。'
+                    : 'Leaving this blank is not consent to outsourcing. Collaborators and scope are confirmed before commissioning.'
+                }
+              />
+              <Select
+                lang={lang}
+                label={
+                  lang === 'ja' ? '実績掲載の可否' : 'Portfolio visibility'
+                }
+                name="portfolio_visibility"
+                options={personalPortfolioOptions}
+                helper={
+                  lang === 'ja'
+                    ? '非公開は税別+100,000円〜（税込110,000円〜）。掲載範囲と公開時期は契約前に確認します。'
+                    : 'Private work: +JPY 100,000 before tax (JPY 110,000 incl. tax). Publication scope and timing are confirmed before commissioning.'
+                }
+              />
+              <Select
+                lang={lang}
+                label={
+                  lang === 'ja'
+                    ? 'プロジェクトファイル納品'
+                    : 'Project file delivery'
+                }
+                name="project_file"
+                options={projectFileOptions}
+                helper={
+                  lang === 'ja'
+                    ? '納品は税別+200,000円〜（税込220,000円〜）。第三者素材の制限と納品範囲を事前に確認します。'
+                    : 'Delivery: +JPY 200,000 before tax (JPY 220,000 incl. tax). Third-party restrictions and deliverables are confirmed in advance.'
+                }
+              />
+            </FormSection>
+          </details>
+          <ContactActions lang={lang} delivery={delivery} />
+        </fieldset>
       </form>
     </section>
   )
 }
 
 function BusinessContact({ lang }: { lang: Lang }) {
-  const [submitStatus, setSubmitStatus] = useState<SubmitStatus>('idle')
+  const delivery = useContactDelivery('business')
 
   return (
     <section className="contact-section" id="contact">
@@ -1097,120 +1288,289 @@ function BusinessContact({ lang }: { lang: Lang }) {
         action={formEndpoints.business}
         method="POST"
         className="contact-form"
-        onSubmit={(event) => handleContactSubmit(event, '[Riesz 法人依頼]', setSubmitStatus)}
+        ref={delivery.formRef}
+        onInput={delivery.onInput}
+        onSubmit={delivery.onSubmit}
       >
-        <input type="hidden" name="_subject" value="[Riesz 法人依頼]" />
-        <FormSection
-          id="business-contact"
-          number="01"
-          title={lang === 'ja' ? 'ご連絡先' : 'Contact'}
-          subtitle={lang === 'ja' ? 'Contact' : 'Company details'}
+        <fieldset
+          className="contact-form__body"
+          disabled={delivery.status === 'submitting'}
         >
-          <div className="form-row">
-            <Field label={lang === 'ja' ? '会社名' : 'Company'} name="company" required />
-            <Field label={lang === 'ja' ? '担当者名' : 'Contact person'} name="name" required />
-          </div>
-          <div className="form-row">
-            <Field label={lang === 'ja' ? 'メールアドレス' : 'Email'} name="email" type="email" required />
-            <Field label={lang === 'ja' ? '会社サイトURL' : 'Company website'} name="company_url" />
-          </div>
-        </FormSection>
+          <input type="hidden" name="_subject" value="[Riesz 法人依頼]" />
+          <FormSection
+            id="business-contact"
+            number="01"
+            title={lang === 'ja' ? 'ご連絡先' : 'Contact'}
+            subtitle={lang === 'ja' ? 'Contact' : 'Company details'}
+          >
+            <div className="form-row">
+              <Field
+                label={lang === 'ja' ? '会社名' : 'Company'}
+                name="company"
+                required
+              />
+              <Field
+                label={lang === 'ja' ? '担当者名' : 'Contact person'}
+                name="name"
+                required
+              />
+            </div>
+            <div className="form-row">
+              <Field
+                label={lang === 'ja' ? 'メールアドレス' : 'Email'}
+                name="email"
+                type="email"
+                required
+              />
+              <Field
+                label={lang === 'ja' ? '会社サイトURL' : 'Company website'}
+                name="company_url"
+              />
+            </div>
+          </FormSection>
 
-        <FormSection
-          id="business-project"
-          number="02"
-          title={lang === 'ja' ? '案件概要' : 'Project'}
-          subtitle={lang === 'ja' ? 'Project' : 'Scope and release'}
-        >
-          <TextArea label={lang === 'ja' ? '案件概要' : 'Project summary'} name="project_summary" required />
-          <div className="form-row">
-            <Field label={lang === 'ja' ? '使用範囲' : 'Usage scope'} name="usage_scope" required />
-            <Field label={lang === 'ja' ? '公開媒体' : 'Release media'} name="media" required />
-          </div>
-          <Field label={lang === 'ja' ? '参考資料URL' : 'Reference material URL'} name="references" required />
-        </FormSection>
-
-        <FormSection
-          id="business-schedule"
-          number="03"
-          title={lang === 'ja' ? '納期・素材' : 'Schedule & Materials'}
-          subtitle={lang === 'ja' ? 'Schedule & Materials' : 'Timing, budget, and assets'}
-        >
-          <div className="form-row">
-            <Field label={lang === 'ja' ? '希望納期' : 'Preferred delivery date'} name="delivery_date" required />
-            <Field label={lang === 'ja' ? '公開予定日' : 'Planned release date'} name="release_date" required />
-          </div>
-          <IllustrationScheduleFields lang={lang} />
-          <div className="form-row">
-            <Field label={lang === 'ja' ? '予算感' : 'Budget range'} name="budget" />
-            <Field label={lang === 'ja' ? '素材URL' : 'Material URL'} name="material_url" />
-          </div>
-        </FormSection>
-
-        <FormSection
-          id="business-terms"
-          number="04"
-          title={lang === 'ja' ? '契約・制作条件' : 'Contract & Production'}
-          subtitle={lang === 'ja' ? 'Contract & Production' : 'Approval, payment, and delivery'}
-        >
-          <div className="form-row">
-            <Select
-              lang={lang}
-              label={lang === 'ja' ? '実績掲載の可否' : 'Portfolio visibility'}
-              name="portfolio_visibility"
-              options={businessPortfolioOptions}
+          <FormSection
+            id="business-project"
+            number="02"
+            title={lang === 'ja' ? '案件概要' : 'Project'}
+            subtitle={lang === 'ja' ? 'Project' : 'Scope and release'}
+          >
+            <TextArea
+              label={lang === 'ja' ? '案件概要' : 'Project summary'}
+              name="project_summary"
               required
             />
-            <Select
-              lang={lang}
-              label={lang === 'ja' ? 'NDA / 契約書の有無' : 'NDA / Contract'}
-              name="nda_contract"
-              options={ndaOptions}
+            <Field
+              label={lang === 'ja' ? '希望納期' : 'Preferred delivery date'}
+              name="delivery_date"
+              helper={
+                lang === 'ja'
+                  ? '未定の場合は「未定」で構いません。'
+                  : 'TBD is fine if not decided.'
+              }
               required
             />
-          </div>
-          <Select
-            lang={lang}
-            label={
-              lang === 'ja'
-                ? '協力クリエイターの参加可否'
-                : 'Collaborator participation'
-            }
-            name="collaborator_participation"
-            options={corporateCollaboratorOptions}
-            helper={
-              lang === 'ja'
-                ? corporateCollaboratorHelper.ja
-                : corporateCollaboratorHelper.en
-            }
-            required
-          />
-          <Field label={lang === 'ja' ? '請求書払い条件' : 'Invoice payment terms'} name="payment_terms" required />
-          <Select
-            lang={lang}
-            label={lang === 'ja' ? 'プロジェクトファイル納品' : 'Project file delivery'}
-            name="project_file"
-            options={projectFileOptions}
-          />
-          <TextArea label={lang === 'ja' ? 'その他' : 'Additional notes'} name="message" />
-        </FormSection>
-        <button className="submit-button" type="submit" disabled={submitStatus === 'submitting'}>
-          <Mail size={17} aria-hidden="true" />
-          {submitStatus === 'submitting'
-            ? lang === 'ja'
-              ? '送信中'
-              : 'Sending'
-            : lang === 'ja'
-              ? '法人案件を相談する'
-              : 'Send Business Inquiry'}
-        </button>
-        <ContactSubmitStatus lang={lang} status={submitStatus} />
+            <Field
+              label={
+                lang === 'ja' ? '予算感（税別）' : 'Budget range (before tax)'
+              }
+              name="budget"
+            />
+            <TextArea
+              label={lang === 'ja' ? '参考資料URL' : 'Reference material URLs'}
+              name="references"
+            />
+          </FormSection>
+          <details className="form-optional">
+            <summary>
+              {lang === 'ja'
+                ? '素材・使用範囲・契約条件（任意）'
+                : 'Materials, usage and contract details (optional)'}
+            </summary>
+            <FormSection
+              id="business-schedule"
+              number="03"
+              title={lang === 'ja' ? '納期・素材' : 'Schedule & Materials'}
+              subtitle={
+                lang === 'ja' ? 'Schedule & Materials' : 'Timing and assets'
+              }
+            >
+              <div className="form-row">
+                <Field
+                  label={lang === 'ja' ? '使用範囲' : 'Usage scope'}
+                  name="usage_scope"
+                />
+                <Field
+                  label={lang === 'ja' ? '公開媒体' : 'Release media'}
+                  name="media"
+                />
+              </div>
+              <div className="form-row">
+                <Field
+                  label={lang === 'ja' ? '公開予定日' : 'Planned release date'}
+                  name="release_date"
+                />
+              </div>
+              <IllustrationScheduleFields
+                lang={lang}
+                key={delivery.resetVersion}
+              />
+              <div className="form-row">
+                <Field
+                  label={lang === 'ja' ? '素材URL' : 'Material URL'}
+                  name="material_url"
+                />
+              </div>
+            </FormSection>
+
+            <FormSection
+              id="business-terms"
+              number="04"
+              title={lang === 'ja' ? '契約・制作条件' : 'Contract & Production'}
+              subtitle={
+                lang === 'ja'
+                  ? 'Contract & Production'
+                  : 'Approval, payment, and delivery'
+              }
+            >
+              <div className="form-row">
+                <Select
+                  lang={lang}
+                  label={
+                    lang === 'ja' ? '実績掲載の可否' : 'Portfolio visibility'
+                  }
+                  name="portfolio_visibility"
+                  options={businessPortfolioOptions}
+                />
+                <Select
+                  lang={lang}
+                  label={
+                    lang === 'ja' ? 'NDA / 契約書の有無' : 'NDA / Contract'
+                  }
+                  name="nda_contract"
+                  options={ndaOptions}
+                />
+              </div>
+              <Select
+                lang={lang}
+                label={
+                  lang === 'ja'
+                    ? '協力クリエイターの参加可否'
+                    : 'Collaborator participation'
+                }
+                name="collaborator_participation"
+                options={corporateCollaboratorOptions}
+                helper={
+                  lang === 'ja'
+                    ? corporateCollaboratorHelper.ja
+                    : corporateCollaboratorHelper.en
+                }
+              />
+              <Field
+                label={
+                  lang === 'ja' ? '請求書払い条件' : 'Invoice payment terms'
+                }
+                name="payment_terms"
+              />
+              <Select
+                lang={lang}
+                label={
+                  lang === 'ja'
+                    ? 'プロジェクトファイル納品'
+                    : 'Project file delivery'
+                }
+                name="project_file"
+                options={businessProjectFileOptions}
+              />
+              <TextArea
+                label={lang === 'ja' ? 'その他' : 'Additional notes'}
+                name="message"
+              />
+            </FormSection>
+          </details>
+          <ContactActions lang={lang} delivery={delivery} business />
+        </fieldset>
       </form>
     </section>
   )
 }
 
-function ContactSubmitStatus({ lang, status }: { lang: Lang; status: SubmitStatus }) {
+function ContactActions({
+  lang,
+  delivery,
+  business = false,
+}: {
+  lang: Lang
+  delivery: ReturnType<typeof useContactDelivery>
+  business?: boolean
+}) {
+  const [verified, setVerified] = useState(false)
+  const pending = delivery.status === 'submitting'
+  return (
+    <div className="contact-actions">
+      <p className="contact-consent">
+        {lang === 'ja'
+          ? '相談は無料です。送信だけで発注は確定しません。'
+          : 'Inquiries are free. Submitting this form does not place an order.'}{' '}
+        <a href="/privacy/" target="_blank" rel="noreferrer">
+          {lang === 'ja' ? '個人情報の取り扱い' : 'Privacy policy'}
+        </a>
+      </p>
+      <ContactChallenge
+        lang={lang}
+        reset={delivery.challengeReset}
+        onReady={setVerified}
+      />
+      <button
+        className="submit-button"
+        type="submit"
+        disabled={pending || Boolean(turnstileSiteKey && !verified)}
+      >
+        <Mail size={17} aria-hidden="true" />
+        {pending
+          ? lang === 'ja'
+            ? '送信中'
+            : 'Sending'
+          : lang === 'ja'
+            ? business
+              ? '法人案件を相談する'
+              : '見積もり相談を送る'
+            : business
+              ? 'Send Business Inquiry'
+              : 'Send Estimate Request'}
+      </button>
+      <ContactSubmitStatus lang={lang} status={delivery.status} />
+      {delivery.receipt && (
+        <p className="receipt-id">
+          {lang === 'ja' ? 'お問い合わせ番号' : 'Inquiry reference'}:{' '}
+          {delivery.receipt.id}
+        </p>
+      )}
+      <div className="contact-fallback">
+        <button type="button" onClick={delivery.copy} disabled={pending}>
+          <Copy size={16} aria-hidden="true" />
+          {delivery.copyState === 'copied'
+            ? lang === 'ja'
+              ? 'コピーしました'
+              : 'Copied'
+            : lang === 'ja'
+              ? '相談内容をコピー'
+              : 'Copy inquiry'}
+        </button>
+        <a href={`mailto:${contactEmail}`} onClick={delivery.email}>
+          <Mail size={16} aria-hidden="true" />
+          {lang === 'ja' ? 'メールで送る' : 'Send by email'}
+        </a>
+      </div>
+      {delivery.copyState === 'manual' && (
+        <label className="field">
+          {lang === 'ja'
+            ? '相談内容（選択してコピー）'
+            : 'Inquiry (select to copy)'}
+          <textarea
+            readOnly
+            rows={8}
+            value={delivery.manualCopy}
+            onFocus={(event) => event.currentTarget.select()}
+          />
+        </label>
+      )}
+      <p className="contact-consent">
+        {lang === 'ja'
+          ? '送信が難しい場合は、内容をコピーして rieszedit@gmail.com にお送りください。'
+          : 'If the form is unavailable, copy your inquiry and email rieszedit@gmail.com.'}
+      </p>
+    </div>
+  )
+}
+
+function ContactSubmitStatus({
+  lang,
+  status,
+}: {
+  lang: Lang
+  status: SubmitStatus
+}) {
   if (status === 'idle') {
     return null
   }
@@ -1223,15 +1583,19 @@ function ContactSubmitStatus({ lang, status }: { lang: Lang; status: SubmitStatu
       : status === 'success'
         ? lang === 'ja'
           ? `相談を受け付けました。内容を確認し、通常3日以内に返信します。3日以内に返信がない場合は ${contactEmail} へ直接ご連絡ください。`
-          : `Request received. I will review the details and reply within 3 business days. If you do not receive a reply within that time, please contact ${contactEmail} directly.`
-        : lang === 'ja'
-          ? `送信できませんでした。お手数ですが ${contactEmail} へ直接ご連絡ください。`
-          : `Could not send the form. Please contact ${contactEmail} directly.`
+          : `Request received. I will review the details and usually reply within 3 days. If you do not receive a reply within that time, please contact ${contactEmail} directly.`
+        : status === 'unknown'
+          ? lang === 'ja'
+            ? '通信が中断され、受付結果を確認できませんでした。二重送信を避けるため、下のメールからお問い合わせ番号を添えて受付確認をご依頼ください。入力内容は残っています。'
+            : 'The connection ended before receipt could be confirmed. To avoid duplicates, use the email option below and include your inquiry reference to check receipt. Your input is preserved.'
+          : lang === 'ja'
+            ? `送信できませんでした。お手数ですが ${contactEmail} へ直接ご連絡ください。`
+            : `Could not send the form. Please contact ${contactEmail} directly.`
 
   return (
     <p
       className={`form-status form-status--${status}`}
-      role={status === 'error' ? 'alert' : 'status'}
+      role={status === 'error' || status === 'unknown' ? 'alert' : 'status'}
       aria-live="polite"
     >
       {message}
@@ -1251,7 +1615,7 @@ function ContactIntro({ lang, business }: { lang: Lang; business: boolean }) {
             : 'Business projects are estimated individually after confirming scope, usage, and rights.'
           : lang === 'ja'
             ? '通常3日以内にご返信いたします。内容により、追加確認をお願いする場合があります。'
-            : 'I usually reply within 3 business days. Follow-up questions may be needed depending on the project.'}
+            : 'I usually reply within 3 days. Follow-up questions may be needed depending on the project.'}
       </span>
       <a className="direct-mail" href={`mailto:${contactEmail}`}>
         {contactEmail}
@@ -1385,7 +1749,7 @@ function Select({
         {required && <b> *</b>}
       </span>
       <select name={name} required={required} {...selectProps}>
-        <option value="" disabled>
+        <option value="" disabled={required}>
           {lang === 'ja' ? '選択してください' : 'Select'}
         </option>
         {options.map((option) => (
@@ -1439,6 +1803,7 @@ function Footer({ lang }: { lang: Lang }) {
       <nav aria-label="Footer navigation">
         <a href="/">Home</a>
         <a href="/business/">Business</a>
+        <a href="/privacy/">{lang === 'ja' ? 'プライバシー' : 'Privacy'}</a>
         <a href={playlistUrl} target="_blank" rel="noreferrer">
           YouTube
         </a>

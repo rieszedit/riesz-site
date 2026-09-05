@@ -23,7 +23,10 @@ test('groups Riesz Main and Hybrid into Standard and Flagship tiers', () => {
     )
 
     for (const tier of route.tiers) {
-      assert.match(tier.representativeWork.url, /^https:\/\/(www\.)?youtube\.com\//)
+      assert.match(
+        tier.representativeWork.url,
+        /^https:\/\/(www\.)?youtube\.com\//,
+      )
       assert.notEqual(tier.representativeWork.titleJa.trim(), '')
       assert.notEqual(tier.representativeWork.titleEn.trim(), '')
     }
@@ -41,7 +44,9 @@ test('prices Hybrid Flagship from JPY 270,000 in both languages', () => {
 
 test('positions Hybrid Standard as specialist lyric quality reinforcement from JPY 170,000', () => {
   const hybridRoute = pricingRoutes.find((route) => route.id === 'hybrid')
-  const hybridStandard = hybridRoute?.tiers.find((tier) => tier.id === 'standard')
+  const hybridStandard = hybridRoute?.tiers.find(
+    (tier) => tier.id === 'standard',
+  )
 
   assert.equal(hybridStandard?.priceJa, '170,000円〜')
   assert.equal(hybridStandard?.priceEn, 'From JPY 170,000')
@@ -101,11 +106,34 @@ test('explains when final production starts and how rough artwork is handled', (
   const englishPolicy = notesEn.join('\n')
 
   assert.match(japanesePolicy, /清書イラストおよび必要素材の受領・確認後/)
-  assert.match(japanesePolicy, /ラフ素材先行進行として \+30,000円〜（税別）/)
+  assert.match(
+    japanesePolicy,
+    /ラフ素材先行進行として \+30,000円〜（税別／税込33,000円〜）/,
+  )
   assert.match(japanesePolicy, /同一構図・同一サイズ・同一ポーズ/)
   assert.match(japanesePolicy, /制作枠を再調整/)
-  assert.match(englishPolicy, /final illustrations and other required materials/i)
+  assert.match(
+    englishPolicy,
+    /final illustrations and other required materials/i,
+  )
   assert.match(englishPolicy, /additional JPY 30,000 before tax/i)
   assert.match(englishPolicy, /same composition, dimensions, pose/i)
-  assert.match(englishPolicy, /production schedule and delivery date will be rescheduled/i)
+  assert.match(
+    englishPolicy,
+    /production schedule and delivery date will be rescheduled/i,
+  )
+})
+
+test('tax totals, cancellation settlement and production-error exceptions remain explicit', () => {
+  assert.deepEqual(
+    pricingRoutes.flatMap((route) =>
+      route.tiers.map((tier) => tier.priceWithTax),
+    ),
+    [165000, 275000, 187000, 297000],
+  )
+  assert.match(notesJa.join('\n'), /未使用分を返金/)
+  assert.match(notesJa.join('\n'), /制作ミスや合意仕様との不一致/)
+  assert.match(notesJa.join('\n'), /二次配布が可能/)
+  assert.match(notesEn.join('\n'), /four minutes or longer/)
+  assert.match(notesEn.join('\n'), /separate from copyright transfer/)
 })

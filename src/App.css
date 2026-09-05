@@ -310,7 +310,11 @@ button {
   z-index: 1;
   content: '';
   background:
-    linear-gradient(180deg, rgba(29, 29, 29, 0.06) 0%, rgba(29, 29, 29, 0.68) 100%),
+    linear-gradient(
+      180deg,
+      rgba(29, 29, 29, 0.06) 0%,
+      rgba(29, 29, 29, 0.68) 100%
+    ),
     linear-gradient(110deg, rgba(29, 29, 29, 0.54), transparent 58%);
   pointer-events: none;
 }
@@ -455,7 +459,9 @@ button {
   height: 100%;
   display: block;
   object-fit: cover;
-  transition: transform 420ms ease, filter 420ms ease;
+  transition:
+    transform 420ms ease,
+    filter 420ms ease;
 }
 
 .work-card:hover img {
@@ -569,7 +575,10 @@ button {
 
 .business-work-row {
   display: grid;
-  grid-template-columns: minmax(220px, 0.62fr) minmax(0, 1fr) minmax(220px, 0.72fr) 44px;
+  grid-template-columns: minmax(220px, 0.62fr) minmax(0, 1fr) minmax(
+      220px,
+      0.72fr
+    ) 44px;
   gap: 24px;
   align-items: center;
   min-width: 0;
@@ -847,7 +856,7 @@ button {
 .pricing-tier__details dt,
 .pricing-tier__details dd {
   margin: 0;
-  font-size: 0.78rem;
+  font-size: 0.9rem;
   line-height: 1.6;
 }
 
@@ -1331,6 +1340,190 @@ button {
   color: var(--accent);
 }
 
+section[id] {
+  scroll-margin-top: 100px;
+}
+
+.pricing-comparison {
+  margin: 32px 0;
+}
+.pricing-comparison table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+.pricing-comparison th,
+.pricing-comparison td {
+  padding: 18px 12px;
+  border-bottom: 1px solid var(--border, #454545);
+  text-align: left;
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.pricing-comparison th:first-child {
+  width: 24%;
+}
+.pricing-comparison a {
+  color: var(--accent);
+  display: block;
+  min-height: 44px;
+  text-underline-offset: 4px;
+}
+.pricing-comparison small {
+  display: block;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.7;
+}
+.pricing-comparison > p,
+.pricing-scope {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.85;
+  max-width: 900px;
+}
+.pricing-tier__heading {
+  flex-wrap: wrap;
+}
+.pricing-tier__price {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.pricing-tier__price strong {
+  color: var(--accent);
+  font-family: var(--ui);
+  font-size: 1.1rem;
+}
+.pricing-tier__price small {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+.plan-contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  min-height: 44px;
+  margin-top: 12px;
+  color: var(--accent);
+  font-size: 0.9rem;
+  text-underline-offset: 4px;
+}
+.form-optional {
+  border-block: 1px solid #454545;
+}
+.form-optional > summary {
+  padding: 20px 0;
+  cursor: pointer;
+  line-height: 1.7;
+  font-weight: 700;
+}
+.field input,
+.field select,
+.field textarea {
+  font-size: 16px;
+  min-width: 0;
+}
+.contact-actions {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+.contact-form__body {
+  display: grid;
+  gap: 22px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.contact-consent {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.8;
+}
+.contact-consent a {
+  color: var(--text);
+  text-underline-offset: 4px;
+}
+.contact-fallback {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.contact-fallback button,
+.contact-fallback a,
+.contact-challenge button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #5c5c5c;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+.contact-challenge {
+  container-type: inline-size;
+  min-width: 0;
+  min-height: 78px;
+}
+.contact-challenge > div:first-child {
+  min-height: 65px;
+}
+@container (max-width: 299px) {
+  .contact-challenge > div:first-child { min-height: 140px; }
+}
+.contact-challenge p {
+  color: var(--text-muted);
+  line-height: 1.8;
+}
+.receipt-id {
+  margin: 0;
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+.form-status--unknown {
+  border-color: #d9ad50;
+}
+.privacy-page {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.privacy-page h1 {
+  font-size: 2.4rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.privacy-page section {
+  margin-block: 36px;
+}
+.privacy-page h2 {
+  font-size: 1.25rem;
+}
+.privacy-page p {
+  color: var(--text-muted);
+  line-height: 1.9;
+}
+.privacy-page nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+.privacy-page a {
+  color: var(--accent);
+  min-height: 44px;
+}
+
 @media (max-width: 1120px) {
   .hero-section,
   .business-hero,
@@ -1380,6 +1573,20 @@ button {
 }
 
 @media (max-width: 760px) {
+  section[id] {
+    scroll-margin-top: 20px;
+  }
+  .pricing-comparison th,
+  .pricing-comparison td {
+    padding: 14px 6px;
+    font-size: 0.85rem;
+  }
+  .pricing-comparison small {
+    font-size: 0.875rem;
+  }
+  .pricing-tier__details div {
+    grid-template-columns: 96px minmax(0, 1fr);
+  }
   body {
     font-size: 15px;
   }

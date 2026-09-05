@@ -7,14 +7,18 @@ type FormContract = {
 
 async function readFormContract(form: Locator): Promise<FormContract> {
   return form.locator('[name]').evaluateAll((controls) => {
-    const names = [...new Set(controls.map((control) => control.getAttribute('name') ?? ''))]
+    const names = [
+      ...new Set(controls.map((control) => control.getAttribute('name') ?? '')),
+    ]
       .filter(Boolean)
       .sort()
-    const required = [...new Set(
-      controls
-        .filter((control) => control.hasAttribute('required'))
-        .map((control) => control.getAttribute('name') ?? ''),
-    )]
+    const required = [
+      ...new Set(
+        controls
+          .filter((control) => control.hasAttribute('required'))
+          .map((control) => control.getAttribute('name') ?? ''),
+      ),
+    ]
       .filter(Boolean)
       .sort()
 
@@ -23,9 +27,11 @@ async function readFormContract(form: Locator): Promise<FormContract> {
 }
 
 async function readOptions(form: Locator, name: string) {
-  return form.locator(`select[name="${name}"] option`).evaluateAll((options) =>
-    options.map((option) => (option as HTMLOptionElement).value),
-  )
+  return form
+    .locator(`select[name="${name}"] option`)
+    .evaluateAll((options) =>
+      options.map((option) => (option as HTMLOptionElement).value),
+    )
 }
 
 async function fillRequiredPersonalFields(form: Locator) {
@@ -35,15 +41,16 @@ async function fillRequiredPersonalFields(form: Locator) {
   await form.locator('[name="preferred_plan"]').selectOption('相談して決めたい')
   await form.locator('[name="budget"]').selectOption('相談したい')
   await form.locator('[name="delivery_date"]').fill('2026-12-31')
-  await form.locator('[name="song_length"]').selectOption('未定')
-  await form.locator('[name="illustration_status"]').selectOption('イラストなし / 対象外')
-  await form.locator('[name="rough_asset_start"]').selectOption('対象外')
-  await form.locator('[name="production_setup"]').selectOption('内容を見て相談したい')
-  await form.locator('[name="portfolio_visibility"]').selectOption('相談したい')
-  await form.locator('[name="project_file"]').selectOption('希望しない')
+  await form
+    .locator('[name="message"]')
+    .fill('映像制作についての受付テストです。')
 }
 
-async function expectNoHorizontalOverflow(page: Page, path: string, width: number) {
+async function expectNoHorizontalOverflow(
+  page: Page,
+  path: string,
+  width: number,
+) {
   await page.setViewportSize({ width, height: 900 })
   await page.goto(path, { waitUntil: 'domcontentloaded' })
   const dimensions = await page.evaluate(() => ({
@@ -54,7 +61,9 @@ async function expectNoHorizontalOverflow(page: Page, path: string, width: numbe
   expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth)
 }
 
-test('personal form keeps client references separate from the selected Riesz work', async ({ page }) => {
+test('personal form keeps client references separate from the selected Riesz work', async ({
+  page,
+}) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' })
   const form = page.locator('form.contact-form')
 
@@ -66,7 +75,6 @@ test('personal form keeps client references separate from the selected Riesz wor
       'delivery_date',
       'discord',
       'email',
-      'final_illustration_date',
       'illustration_status',
       'materials',
       'material_url',
@@ -78,7 +86,6 @@ test('personal form keeps client references separate from the selected Riesz wor
       'project_file',
       'release_date',
       'request_type',
-      'rough_asset_start',
       'song_length',
       'x_id',
     ].sort(),
@@ -86,15 +93,9 @@ test('personal form keeps client references separate from the selected Riesz wor
       'budget',
       'delivery_date',
       'email',
-      'illustration_status',
+      'message',
       'name',
-      'portfolio_visibility',
-      'preferred_plan',
-      'production_setup',
-      'project_file',
       'request_type',
-      'rough_asset_start',
-      'song_length',
     ].sort(),
   })
 
@@ -125,6 +126,8 @@ test('personal form keeps client references separate from the selected Riesz wor
     '未定',
     'イラストなし / 対象外',
   ])
+  await form.locator('details > summary').click()
+  await form.locator('[name="illustration_status"]').selectOption('ラフ段階')
   await expect(readOptions(form, 'rough_asset_start')).resolves.toEqual([
     '',
     '清書受領後に本制作（推奨）',
@@ -139,9 +142,13 @@ test('personal form keeps client references separate from the selected Riesz wor
   )
 
   await page.locator('.work-contact-link').first().click()
-  await expect(form.locator('[name="preferred_plan"]')).toHaveValue('Riesz Main Flagship')
+  await expect(form.locator('[name="preferred_plan"]')).toHaveValue(
+    'Riesz Main Flagship',
+  )
   await expect(form.locator('[name="budget"]')).toHaveValue('25万円以上')
-  await expect(form.locator('[name="riesz_reference_work"]')).toHaveValue('神っぽいな')
+  await expect(form.locator('[name="riesz_reference_work"]')).toHaveValue(
+    '神っぽいな',
+  )
   await expect(form.locator('[name="riesz_reference_url"]')).toHaveValue(
     'https://www.youtube.com/watch?v=vIHCFGj_G2E',
   )
@@ -150,9 +157,13 @@ test('personal form keeps client references separate from the selected Riesz wor
   )
 
   await page.getByRole('button', { name: /EN/ }).click()
-  await expect(form.locator('[name="preferred_plan"]')).toHaveValue('Riesz Main Flagship')
+  await expect(form.locator('[name="preferred_plan"]')).toHaveValue(
+    'Riesz Main Flagship',
+  )
   await expect(form.locator('[name="budget"]')).toHaveValue('25万円以上')
-  await expect(form.locator('[name="riesz_reference_work"]')).toHaveValue('神っぽいな')
+  await expect(form.locator('[name="riesz_reference_work"]')).toHaveValue(
+    '神っぽいな',
+  )
   await expect(form.locator('[name="riesz_reference_url"]')).toHaveValue(
     'https://www.youtube.com/watch?v=vIHCFGj_G2E',
   )
@@ -214,13 +225,17 @@ test('selected Riesz work can be cleared without erasing the inquiry details', a
   const form = page.locator('form.contact-form')
   const clientReferences = form.locator('[name="client_reference_urls"]')
 
-  await clientReferences.fill('https://www.youtube.com/watch?v=client-reference')
+  await clientReferences.fill(
+    'https://www.youtube.com/watch?v=client-reference',
+  )
   await page.locator('.work-contact-link').first().click()
-  await page.getByRole('button', { name: '作品の選択を解除' }).click()
+  await page.getByRole('button', { name: '選択を解除', exact: true }).click()
 
   await expect(form.locator('[name="riesz_reference_work"]')).toHaveCount(0)
   await expect(form.locator('[name="riesz_reference_url"]')).toHaveCount(0)
-  await expect(form.locator('[name="preferred_plan"]')).toHaveValue('Riesz Main Flagship')
+  await expect(form.locator('[name="preferred_plan"]')).toHaveValue(
+    'Riesz Main Flagship',
+  )
   await expect(form.locator('[name="budget"]')).toHaveValue('25万円以上')
   await expect(clientReferences).toHaveValue(
     'https://www.youtube.com/watch?v=client-reference',
@@ -238,20 +253,29 @@ test('Hybrid Standard work prefills the updated plan and budget range', async ({
 
   await hybridStandardWork.locator('.work-contact-link').click()
 
-  await expect(form.locator('[name="preferred_plan"]')).toHaveValue('Hybrid Standard')
+  await expect(form.locator('[name="preferred_plan"]')).toHaveValue(
+    'Hybrid Standard',
+  )
   await expect(form.locator('[name="budget"]')).toHaveValue('15万円〜20万円')
 })
 
-test('language changes preserve personal form selections and checkboxes', async ({ page }) => {
+test('language changes preserve personal form selections and checkboxes', async ({
+  page,
+}) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' })
   const form = page.locator('form.contact-form')
 
   await form.locator('select[name="request_type"]').selectOption('歌ってみたMV')
-  await form.locator('select[name="preferred_plan"]').selectOption('相談して決めたい')
+  await form
+    .locator('select[name="preferred_plan"]')
+    .selectOption('相談して決めたい')
+  await form.locator('details > summary').click()
   await form
     .locator('select[name="production_setup"]')
     .selectOption('一部協力クリエイター参加可')
-  await form.locator('select[name="illustration_status"]').selectOption('ラフ段階')
+  await form
+    .locator('select[name="illustration_status"]')
+    .selectOption('ラフ段階')
   await form
     .locator('select[name="rough_asset_start"]')
     .selectOption('清書受領後に本制作（推奨）')
@@ -259,8 +283,12 @@ test('language changes preserve personal form selections and checkboxes', async 
 
   await page.getByRole('button', { name: /EN/ }).click()
 
-  await expect(form.locator('select[name="request_type"]')).toHaveValue('歌ってみたMV')
-  await expect(form.locator('select[name="preferred_plan"]')).toHaveValue('相談して決めたい')
+  await expect(form.locator('select[name="request_type"]')).toHaveValue(
+    '歌ってみたMV',
+  )
+  await expect(form.locator('select[name="preferred_plan"]')).toHaveValue(
+    '相談して決めたい',
+  )
   await expect(form.locator('select[name="production_setup"]')).toHaveValue(
     '一部協力クリエイター参加可',
   )
@@ -270,7 +298,9 @@ test('language changes preserve personal form selections and checkboxes', async 
   await expect(form.locator('select[name="rough_asset_start"]')).toHaveValue(
     '清書受領後に本制作（推奨）',
   )
-  await expect(form.locator('input[name="materials"][value="音源あり"]')).toBeChecked()
+  await expect(
+    form.locator('input[name="materials"][value="音源あり"]'),
+  ).toBeChecked()
 })
 
 test('language preference survives navigation between personal and business pages', async ({
@@ -295,7 +325,9 @@ test('language preference survives navigation between personal and business page
   ).toBeVisible()
 })
 
-test('visible interaction labels are included in accessible names', async ({ page }) => {
+test('visible interaction labels are included in accessible names', async ({
+  page,
+}) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' })
 
   await expect(page.getByRole('button', { name: /EN/ })).toBeVisible()
@@ -304,7 +336,9 @@ test('visible interaction labels are included in accessible names', async ({ pag
   ).toBeVisible()
 })
 
-test('business form preserves its submission contract and select values', async ({ page }) => {
+test('business form preserves its submission contract and select values', async ({
+  page,
+}) => {
   await page.goto('/business/', { waitUntil: 'domcontentloaded' })
   const form = page.locator('form.contact-form')
 
@@ -317,7 +351,6 @@ test('business form preserves its submission contract and select values', async 
       'company_url',
       'delivery_date',
       'email',
-      'final_illustration_date',
       'illustration_status',
       'material_url',
       'media',
@@ -330,25 +363,14 @@ test('business form preserves its submission contract and select values', async 
       'project_summary',
       'references',
       'release_date',
-      'rough_asset_start',
       'usage_scope',
     ].sort(),
     required: [
-      'collaborator_participation',
       'company',
       'delivery_date',
       'email',
-      'illustration_status',
-      'media',
       'name',
-      'nda_contract',
-      'payment_terms',
-      'portfolio_visibility',
       'project_summary',
-      'references',
-      'release_date',
-      'rough_asset_start',
-      'usage_scope',
     ].sort(),
   })
 
@@ -362,34 +384,44 @@ test('business form preserves its submission contract and select values', async 
   await expect(readOptions(form, 'project_file')).resolves.toEqual([
     '',
     '希望しない',
-    '希望する（+200,000円〜）',
+    '希望する（個別見積もり）',
     '相談したい',
   ])
 })
 
-test('personal and business pages do not overflow narrow viewports', async ({ page }) => {
+test('personal and business pages do not overflow narrow viewports', async ({
+  page,
+}) => {
   for (const width of [320, 412]) {
     await expectNoHorizontalOverflow(page, '/', width)
     await expectNoHorizontalOverflow(page, '/business/', width)
   }
 })
 
-test('hero media selects the desktop and mobile delivery files', async ({ page }) => {
+test('hero media selects the desktop and mobile delivery files', async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1440, height: 1000 })
   await page.goto('/', { waitUntil: 'domcontentloaded' })
   await expect(page.locator('.hero-visual video')).toBeVisible()
   await expect
-    .poll(() => page.locator('.hero-visual video').evaluate((video) => video.currentSrc))
+    .poll(() =>
+      page.locator('.hero-visual video').evaluate((video) => video.currentSrc),
+    )
     .toContain('unknown-mother-goose-hero.mp4')
 
   await page.setViewportSize({ width: 390, height: 844 })
   await page.reload({ waitUntil: 'domcontentloaded' })
   await expect
-    .poll(() => page.locator('.hero-visual video').evaluate((video) => video.currentSrc))
+    .poll(() =>
+      page.locator('.hero-visual video').evaluate((video) => video.currentSrc),
+    )
     .toContain('unknown-mother-goose-hero-mobile.mp4')
 })
 
-test('reduced motion renders a static hero without video sources', async ({ browser }) => {
+test('reduced motion renders a static hero without video sources', async ({
+  browser,
+}) => {
   const context = await browser.newContext({ reducedMotion: 'reduce' })
   const page = await context.newPage()
 
@@ -400,7 +432,9 @@ test('reduced motion renders a static hero without video sources', async ({ brow
   await context.close()
 })
 
-test('Save-Data renders a static hero without video sources', async ({ browser }) => {
+test('Save-Data renders a static hero without video sources', async ({
+  browser,
+}) => {
   const context = await browser.newContext()
   const page = await context.newPage()
   await page.addInitScript(() => {
@@ -442,8 +476,13 @@ test('font files are delivered locally without changing the font families', asyn
 
   expect(externalFontRequests).toEqual([])
   expect(fontRequests.length).toBeGreaterThan(0)
-  expect(fontRequests.every((url) => new URL(url).origin === pageOrigin)).toBe(true)
-  await expect(page.locator('.hero-copy h1')).toHaveCSS('font-family', /Archivo/)
+  expect(fontRequests.every((url) => new URL(url).origin === pageOrigin)).toBe(
+    true,
+  )
+  await expect(page.locator('.hero-copy h1')).toHaveCSS(
+    'font-family',
+    /Archivo/,
+  )
   await expect(page.locator('.hero-description')).toHaveCSS(
     'font-family',
     /Noto Sans JP/,

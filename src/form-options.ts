@@ -38,11 +38,11 @@ export const budgetOptions = [
 ]
 
 export const songLengthOptions = [
-  option('〜1分', 'Up to 1 minute'),
-  option('1分〜2分', '1-2 minutes'),
-  option('2分〜3分', '2-3 minutes'),
-  option('3分〜4分', '3-4 minutes'),
-  option('4分以上', 'Over 4 minutes'),
+  option('1分未満', 'Under 1 minute'),
+  option('1分以上2分未満', '1 to under 2 minutes'),
+  option('2分以上3分未満', '2 to under 3 minutes'),
+  option('3分以上4分未満', '3 to under 4 minutes'),
+  option('4分以上', '4 minutes or longer'),
   option('未定', 'TBD'),
 ]
 
@@ -65,7 +65,10 @@ export const illustrationStatusOptions = [
 ]
 
 export const roughAssetStartOptions = [
-  option('清書受領後に本制作（推奨）', 'Start final production after final artwork (Recommended)'),
+  option(
+    '清書受領後に本制作（推奨）',
+    'Start final production after final artwork (Recommended)',
+  ),
   option(
     'ラフ素材から先行を希望（+30,000円〜）',
     'Start from rough artwork (+JPY 30,000+)',
@@ -101,6 +104,12 @@ export const projectFileOptions = [
   option('相談したい', 'Need to discuss'),
 ]
 
+export const businessProjectFileOptions = [
+  option('希望しない', 'Not needed'),
+  option('希望する（個別見積もり）', 'Requested (custom quote)'),
+  option('相談したい', 'Need to discuss'),
+]
+
 export const ndaOptions = [
   option('あり', 'Required'),
   option('なし', 'Not required'),
@@ -109,7 +118,10 @@ export const ndaOptions = [
 
 export const corporateCollaboratorOptions = [
   option('Riesz本人メインの制作を希望', 'Riesz-led production preferred'),
-  option('一部工程のみ参加可（Hybrid）', 'Limited participation allowed (Hybrid)'),
+  option(
+    '一部工程のみ参加可（Hybrid）',
+    'Limited participation allowed (Hybrid)',
+  ),
   option(
     '協力クリエイター主体も相談可（Partner）',
     'Partner-led production may be discussed',

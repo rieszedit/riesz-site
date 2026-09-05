@@ -1,14 +1,9 @@
-import { defineConfig, devices } from '@playwright/test'
+import { defineConfig } from '@playwright/test'
+import base from './playwright.config'
 
 export default defineConfig({
-  testDir: './tests/e2e',
-  fullyParallel: false,
-  workers: 1,
-  use: {
-    baseURL: 'http://127.0.0.1:41983',
-    trace: 'retain-on-failure',
-    ...devices['Desktop Chrome'],
-  },
+  ...base,
+  testDir: './tests/turnstile',
   webServer: {
     command: 'node scripts/preview-tests.mjs',
     url: 'http://127.0.0.1:41983',
@@ -17,7 +12,7 @@ export default defineConfig({
       ...process.env,
       VITE_FORMSPREE_PERSONAL_ENDPOINT: 'https://formspree.io/f/test-personal',
       VITE_FORMSPREE_BUSINESS_ENDPOINT: 'https://formspree.io/f/test-business',
-      VITE_TURNSTILE_SITE_KEY: '',
+      VITE_TURNSTILE_SITE_KEY: '0xMockedWidgetForTestsOnly',
       VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN: '',
     },
   },

@@ -23,10 +23,11 @@ npm run dev
 npm run build
 ```
 
-The build outputs both:
+The build outputs:
 
 - `/`
 - `/business/`
+- `/privacy/`
 
 ## Formspree Setup
 
@@ -35,14 +36,17 @@ Create two Formspree forms:
 - `riesz-personal`
 - `riesz-business`
 
-Then set these GitHub Actions repository variables or replace the fallback URLs in `src/App.tsx`:
+Set these GitHub Actions repository variables (or a git-ignored `.env.local` for development):
 
 ```text
 VITE_FORMSPREE_PERSONAL_ENDPOINT=https://formspree.io/f/your-personal-id
 VITE_FORMSPREE_BUSINESS_ENDPOINT=https://formspree.io/f/your-business-id
+VITE_TURNSTILE_SITE_KEY=your-public-turnstile-site-key
 ```
 
-Until those endpoints are configured, the rendered forms use placeholder Formspree URLs.
+Production deployment rejects unconfigured endpoints or a missing Turnstile site key. Enable Turnstile CAPTCHA in both Formspree forms with the matching secret. The secret belongs only in Formspree, never in source, VITE variables, or GitHub build output. Leave the site key blank for offline local tests; never disable the server-side verification as a development workaround.
+
+See [Inquiry operations](docs/inquiry-operations.md) for receipt checks, spam protection, incident handling and rollback.
 
 ## Analytics Setup
 
@@ -53,6 +57,18 @@ VITE_CLOUDFLARE_WEB_ANALYTICS_TOKEN=your-cloudflare-web-analytics-token
 ```
 
 The build only injects the Cloudflare beacon when this variable is set.
+No additional analytics service or form-abandonment tracking is used. Compare Cloudflare aggregate visits with genuine Formspree receipts for the same period, excluding test and duplicate messages.
+
+## Verification
+
+```powershell
+npm run lint
+npm test
+npx playwright install chromium
+npm run test:e2e
+```
+
+Browser tests build a production preview with mocked Formspree endpoints and no live analytics/CAPTCHA. No customer inquiry is sent by this suite. Real delivery through CAPTCHA, Formspree, and Gmail is a separate manual release check.
 
 ## Search Console Setup
 

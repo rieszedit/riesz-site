@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { closeSync, existsSync, openSync, readSync, statSync } from 'node:fs'
 import { spawnSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 import test from 'node:test'
 
 const desktopPath = new URL(
@@ -45,11 +46,12 @@ function probe(path: URL) {
       'stream=codec_name,codec_type,width,height,pix_fmt,r_frame_rate',
       '-of',
       'json',
-      path.pathname.slice(1),
+      fileURLToPath(path),
     ],
     { encoding: 'utf8' },
   )
 
+  assert.ifError(result.error)
   assert.equal(result.status, 0, result.stderr)
   return JSON.parse(result.stdout) as ProbeResult
 }

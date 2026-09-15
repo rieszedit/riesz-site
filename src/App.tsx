@@ -610,8 +610,8 @@ function WorksSection({
         </p>
         <p>
           {lang === 'ja'
-            ? 'Hybrid は、Rieszのディレクションに加えて、協力クリエイターが一部制作に参加する形式です。'
-            : 'Hybrid means a collaborator may join part of the production under Riesz’s direction.'}
+            ? 'Hybrid は、Rieszが映像制作を担当し、協力クリエイターがリリックなど一部制作に参加する形式です。担当範囲は各作品のクレジットをご確認ください。'
+            : 'Hybrid combines video production by Riesz with contributions such as lyric design or motion by collaborators. See each work’s credits for the individual production roles.'}
         </p>
       </div>
       <div className="work-grid">

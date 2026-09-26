@@ -686,6 +686,16 @@ function PricingSection({
           ? '制作体制と演出の作り込み量から選べる、個人向けの料金目安です。最終金額は楽曲尺、素材状況、納期、表現量によってお見積もりします。太字は税別、下段は税込目安です。'
           : 'Indicative prices for individual commissions, grouped by production team and creative scope. Final estimates depend on song length, assets, timeline, and visual complexity. Bold prices are before tax; totals including tax appear below.'}
       </p>
+      <p className="pricing-lead pricing-budget-note">
+        <strong>
+          {isJapanese
+            ? 'ご予算が合わない場合も、お気軽にご相談ください。'
+            : 'Have a different budget in mind? Please feel free to get in touch.'}
+        </strong>{' '}
+        {isJapanese
+          ? 'ご希望の金額を添えていただければ、ご希望とご予算をもとに、演出や制作範囲を調整した内容をご提案します。'
+          : 'Share your target budget and ideas, and I can suggest options with a tailored creative approach and production scope.'}
+      </p>
 
       <ol
         className="pricing-steps"
@@ -1136,6 +1146,11 @@ function PersonalContact({
               }
               name="budget"
               options={budgetOptions}
+              helper={
+                lang === 'ja'
+                  ? '該当する予算帯がない場合は「相談したい」を選び、ご希望の金額を案件概要にお書き添えください。'
+                  : 'If none of the ranges match, choose "Need advice" and include your target budget in the project summary.'
+              }
               required
               value={budget}
               onValueChange={setBudget}
@@ -1608,6 +1623,11 @@ function ContactIntro({ lang, business }: { lang: Lang; business: boolean }) {
     <div className="contact-intro">
       <p>Contact</p>
       <h2>{lang === 'ja' ? 'ご相談はこちら' : 'Request an Estimate'}</h2>
+      <span className="contact-budget-note">
+        {lang === 'ja'
+          ? 'プランが決まっていなくても大丈夫です。ご希望のご予算や制作内容を添えて、お気軽にご相談ください。'
+          : 'You do not need to choose a plan before getting in touch. Share your budget and project ideas, and we can explore the options together.'}
+      </span>
       <span>
         {business
           ? lang === 'ja'

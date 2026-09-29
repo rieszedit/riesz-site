@@ -259,6 +259,32 @@ test('Hybrid Standard work prefills the updated plan and budget range', async ({
   await expect(form.locator('[name="budget"]')).toHaveValue('15万円〜20万円')
 })
 
+test('an unclassified cover requests advice without assuming a Flagship budget', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
+  const form = page.locator('form.contact-form')
+  const references = form.locator('[name="client_reference_urls"]')
+  await references.fill('https://example.com/client-reference')
+  await page.locator('.work-contact-link').first().click()
+  await expect(form.locator('[name="preferred_plan"]')).toHaveValue('Riesz Main Flagship')
+
+  const eine = page.locator('.work-card').filter({ hasText: 'アイネクライネ' })
+  await eine.locator('.work-contact-link').click()
+  await expect(form.locator('[name="preferred_plan"]')).toHaveValue('相談して決めたい')
+  await expect(form.locator('[name="budget"]')).toHaveValue('相談したい')
+  await expect(form.locator('[name="riesz_reference_url"]')).toHaveValue('https://www.youtube.com/watch?v=CaYcxKktAuk')
+  await expect(references).toHaveValue('https://example.com/client-reference')
+
+  await page.getByRole('button', { name: /EN/ }).click()
+  await expect(eine).toHaveCount(0)
+  await expect(form.locator('[name="preferred_plan"] option:checked')).toHaveText('Need advice')
+  await expect(form.locator('[name="budget"] option:checked')).toHaveText('Need advice')
+  const ittai = page.locator('.work-card').filter({ hasText: 'Ittai Itsukara' })
+  await ittai.locator('.work-contact-link').click()
+  await expect(form.locator('[name="preferred_plan"]')).toHaveValue('Hybrid Flagship')
+  await expect(form.locator('[name="budget"]')).toHaveValue('25万円以上')
+  await expect(references).toHaveValue('https://example.com/client-reference')
+})
+
 test('language changes preserve personal form selections and checkboxes', async ({
   page,
 }) => {

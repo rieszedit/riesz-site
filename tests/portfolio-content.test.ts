@@ -4,7 +4,7 @@ import test from 'node:test'
 import { businessWorks, works } from '../src/portfolio-content.ts'
 
 test('keeps the complete public portfolio in its existing order', () => {
-  assert.equal(works.length, 15)
+  assert.equal(works.length, 17)
   assert.deepEqual(works.slice(0, 3).map((work) => work.title), [
     '神っぽいな',
     'メクルメ',
@@ -60,6 +60,30 @@ test('preserves distinct public credits for the new Hybrid Flagship works', () =
   assert.equal(romeo.role, 'Movie: Riesz')
   assert.equal(romeo.noteJa, 'Lyric Design: ななし / Direction: s!on')
   assert.equal(romeo.noteEn, 'Lyric Design: Nanashi / Direction: s!on')
+})
+
+test('lists the new cover works without exposing project prices or inventing roles', () => {
+  const ittai = works.find((work) => work.url.endsWith('bqmOBiWv9_s'))
+  const eine = works.find((work) => work.url.endsWith('CaYcxKktAuk'))
+
+  assert.ok(ittai)
+  assert.ok(eine)
+  assert.equal(ittai.title, '一体いつから')
+  assert.equal(ittai.titleEn, 'Ittai Itsukara')
+  assert.equal(ittai.client, '慈 / Utsumi')
+  assert.equal(ittai.role, 'Movie: Riesz')
+  assert.deepEqual(ittai.tags, ['Hybrid Flagship', 'Cover MV'])
+  assert.equal(ittai.noteJa, 'Partial Lyric Motion: ななし')
+  assert.equal(ittai.noteEn, 'Partial Lyric Motion: Nanashi')
+  assert.equal(eine.title, 'アイネクライネ')
+  assert.equal(eine.titleEn, 'Eine Kleine')
+  assert.equal(eine.clientEn, 'Shinomiya Runa')
+  assert.equal(eine.role, 'Movie: Riesz')
+  assert.deepEqual(eine.tags, ['Cover MV'])
+  for (const work of [ittai, eine]) {
+    assert.ok(!work.businessFeatured)
+    assert.doesNotMatch(JSON.stringify(work), /円|JPY|[¥￥]/)
+  }
 })
 
 test('selects exactly the approved public corporate works', () => {

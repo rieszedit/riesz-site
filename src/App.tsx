@@ -130,10 +130,18 @@ function getWorkScalePreset(tags: string[]) {
     }
   }
 
+  if (tags.includes('Flagship')) {
+    return {
+      plan: 'Riesz Main Flagship',
+      budgetJa: '25万円以上',
+      budgetEn: 'JPY 250,000+',
+    }
+  }
+
   return {
-    plan: 'Riesz Main Flagship',
-    budgetJa: '25万円以上',
-    budgetEn: 'JPY 250,000+',
+    plan: '相談して決めたい',
+    budgetJa: '相談したい',
+    budgetEn: 'Need advice',
   }
 }
 

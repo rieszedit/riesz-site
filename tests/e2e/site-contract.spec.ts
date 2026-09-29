@@ -259,7 +259,7 @@ test('Hybrid Standard work prefills the updated plan and budget range', async ({
   await expect(form.locator('[name="budget"]')).toHaveValue('15万円〜20万円')
 })
 
-test('an unclassified cover requests advice without assuming a Flagship budget', async ({ page }) => {
+test('Eine Kleine selects the approved Main Standard plan without overwriting client references', async ({ page }) => {
   await page.goto('/', { waitUntil: 'domcontentloaded' })
   const form = page.locator('form.contact-form')
   const references = form.locator('[name="client_reference_urls"]')
@@ -269,15 +269,15 @@ test('an unclassified cover requests advice without assuming a Flagship budget',
 
   const eine = page.locator('.work-card').filter({ hasText: 'アイネクライネ' })
   await eine.locator('.work-contact-link').click()
-  await expect(form.locator('[name="preferred_plan"]')).toHaveValue('相談して決めたい')
-  await expect(form.locator('[name="budget"]')).toHaveValue('相談したい')
+  await expect(form.locator('[name="preferred_plan"]')).toHaveValue('Riesz Main Standard')
+  await expect(form.locator('[name="budget"]')).toHaveValue('15万円〜20万円')
   await expect(form.locator('[name="riesz_reference_url"]')).toHaveValue('https://www.youtube.com/watch?v=CaYcxKktAuk')
   await expect(references).toHaveValue('https://example.com/client-reference')
 
   await page.getByRole('button', { name: /EN/ }).click()
   await expect(eine).toHaveCount(0)
-  await expect(form.locator('[name="preferred_plan"] option:checked')).toHaveText('Need advice')
-  await expect(form.locator('[name="budget"] option:checked')).toHaveText('Need advice')
+  await expect(form.locator('[name="preferred_plan"] option:checked')).toHaveText('Riesz Main Standard')
+  await expect(form.locator('[name="budget"] option:checked')).toHaveText('JPY 150,000-200,000')
   const ittai = page.locator('.work-card').filter({ hasText: 'Ittai Itsukara' })
   await ittai.locator('.work-contact-link').click()
   await expect(form.locator('[name="preferred_plan"]')).toHaveValue('Hybrid Flagship')

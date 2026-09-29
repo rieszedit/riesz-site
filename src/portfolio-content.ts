@@ -93,7 +93,7 @@ export const works: WorkItem[] = [
     client: '紫宮るな',
     clientEn: 'Shinomiya Runa',
     role: 'Movie: Riesz',
-    tags: ['Cover MV'],
+    tags: ['Standard', 'Cover MV'],
     url: 'https://www.youtube.com/watch?v=CaYcxKktAuk',
     image: 'https://i.ytimg.com/vi/CaYcxKktAuk/maxresdefault.jpg',
   },

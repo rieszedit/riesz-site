@@ -79,7 +79,7 @@ test('lists the new cover works without exposing project prices or inventing rol
   assert.equal(eine.titleEn, 'Eine Kleine')
   assert.equal(eine.clientEn, 'Shinomiya Runa')
   assert.equal(eine.role, 'Movie: Riesz')
-  assert.deepEqual(eine.tags, ['Cover MV'])
+  assert.deepEqual(eine.tags, ['Standard', 'Cover MV'])
   for (const work of [ittai, eine]) {
     assert.ok(!work.businessFeatured)
     assert.doesNotMatch(JSON.stringify(work), /円|JPY|[¥￥]/)

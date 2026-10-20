@@ -30,6 +30,32 @@ test('email fallback includes human-readable content, not anti-bot tokens', () =
   assert.match(result.subject, /^\[Riesz 法人依頼\]/)
 })
 
+test('website inquiries keep Gmail routing prefixes and useful fallback labels', () => {
+  for (const kind of ['personal', 'business'] as const) {
+    const data = new FormData()
+    data.set('name', 'Client')
+    data.set('service_category', 'website')
+    data.set('website_type', 'portfolio')
+    data.set('website_reference_urls', 'https://example.com/')
+    data.set('website_updates', 'self')
+    data.set('cf-turnstile-response', 'private-token')
+    const result = buildSubmission(data, kind, 'RID-web')
+    assert.equal(result.subject, `[Riesz ${kind === 'business' ? '法人' : '個人'}依頼] Webサイト制作 | Client | RID-web`)
+    assert.match(result.body, /参考サイト \/ Reference websites: https:\/\/example\.com\//)
+    assert.match(result.body, /公開後の更新 \/ Updates after launch: self/)
+    assert.doesNotMatch(result.body, /private-token/)
+    assert.equal(result.data.get('service_category'), 'website')
+  }
+})
+
+test('MV subjects remain unchanged and arbitrary service strings cannot enter a subject', () => {
+  const data = new FormData()
+  data.set('name', 'Client')
+  assert.equal(buildSubmission(data, 'personal', 'RID-mv').subject, '[Riesz 個人依頼] Client | RID-mv')
+  data.set('service_category', 'website\r\nBcc: hidden@example.com')
+  assert.equal(buildSubmission(data, 'personal', 'RID-mv').subject, '[Riesz 個人依頼] Client | RID-mv')
+})
+
 test('acceptance requires the provider confirmation, not just HTTP 200', async () => {
   for (const response of [{ ok: false }, {}, null]) {
     await assert.rejects(

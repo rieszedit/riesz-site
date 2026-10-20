@@ -130,3 +130,43 @@ test('narrow forms use the compact widget and adapt when resized', async ({ page
   await expect(page.locator('[data-widget-size="flexible"]')).toHaveCount(1)
   await expect(page.locator('[name="cf-turnstile-response"]')).toHaveCount(1)
 })
+
+test('website verification covers the selected business endpoint and prevents duplicate sends', async ({ page }) => {
+  await page.route('https://challenges.cloudflare.com/turnstile/v0/api.js*', route =>
+    route.fulfill({ contentType: 'application/javascript', body: widgetScript }),
+  )
+  let release: (() => void) | undefined
+  const responseReady = new Promise<void>((resolve) => { release = resolve })
+  let calls = 0
+  let body = ''
+  await page.route('https://formspree.io/**', async (route) => {
+    calls++
+    expect(route.request().url()).toBe('https://formspree.io/f/test-business')
+    body = route.request().postData() ?? ''
+    await responseReady
+    await route.fulfill({ json: { ok: true } })
+  })
+  await page.goto('/website/#contact')
+  const form = page.locator('form')
+  await form.locator('[name="client_type"]').selectOption('business')
+  await form.locator('[name="company"]').fill('Test company')
+  await form.locator('[name="name"]').fill('Test contact')
+  await form.locator('[name="email"]').fill('test@example.com')
+  await form.locator('[name="website_type"]').selectOption('landing-page')
+  await form.locator('[name="project_summary"]').fill('Mock delivery test.')
+  const button = form.getByRole('button', { name: 'Web制作の相談を送る' })
+  await button.scrollIntoViewIfNeeded()
+  await expect(button).toBeDisabled()
+  await expect(form.locator('[name="cf-turnstile-response"]')).toHaveCount(1)
+  await page.evaluate(() => (window as unknown as { testChallenge: { solve(): void } }).testChallenge.solve())
+  await expect(button).toBeEnabled()
+  await button.click()
+  await expect(form.locator('[name="client_type"]')).toBeDisabled()
+  await expect(form.getByRole('button', { name: '送信中', exact: true })).toBeDisabled()
+  expect(calls).toBe(1)
+  expect(body).toContain('verified-test-token')
+  expect(body).toContain('Webサイト制作')
+  release!()
+  await expect(form.getByRole('status')).toContainText('相談を受け付けました')
+  await expect(button).toBeDisabled()
+})

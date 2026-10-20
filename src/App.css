@@ -88,6 +88,12 @@ button {
   text-transform: none;
 }
 
+@media (max-width: 360px) {
+  .site-header .nav-links {
+    font-size: 0.75rem;
+  }
+}
+
 .nav-links {
   display: flex;
   align-items: center;
@@ -1594,22 +1600,39 @@ section[id],
   }
 
   .site-header {
-    position: static;
+    position: relative;
     align-items: start;
     flex-direction: column;
+    gap: 12px;
     padding: 18px;
   }
 
   .nav-links {
     width: 100%;
-    flex-wrap: wrap;
-    justify-content: start;
-    gap: 12px;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    gap: 4px;
     font-size: 0.82rem;
   }
 
-  .contact-pill {
-    min-width: 104px;
+  .nav-links .language-toggle {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+  }
+
+  .nav-links .contact-pill {
+    min-width: 0;
+    padding-inline: 8px;
+  }
+
+  .hero-copy:has(.availability) {
+    padding-top: 38px;
+    padding-bottom: 34px;
+  }
+
+  .hero-copy .availability {
+    margin-bottom: 0;
   }
 
   .hero-copy,

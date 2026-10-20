@@ -1,0 +1,89 @@
+.availability {
+  margin-block: 26px;
+  padding-block: 20px;
+  border-block: 1px solid var(--line);
+  text-align: left;
+}
+
+.availability__heading {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  color: var(--accent);
+  font-size: 0.94rem;
+}
+
+.availability__heading > span {
+  margin-left: auto;
+  color: var(--text);
+  font-size: 0.78rem;
+}
+
+.availability .availability__priority {
+  margin: 10px 0 16px;
+  max-width: 65ch;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.85;
+}
+
+.availability__months {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.availability__months li {
+  min-width: 0;
+  padding: 9px 4px;
+  background: rgb(242 242 242 / 4%);
+  border-radius: 4px;
+  text-align: center;
+}
+
+.availability__months li > span {
+  display: block;
+  font-size: 0.75rem;
+}
+
+.availability__months strong {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  margin-top: 5px;
+  color: var(--accent);
+  font-size: 0.8rem;
+}
+
+.availability__months strong span {
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.availability .availability__note {
+  margin: 12px 0 0;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  line-height: 1.8;
+}
+
+.availability__note > span {
+  display: inline-block;
+}
+
+@media (min-width: 1121px) {
+  .hero-copy:has(.availability) {
+    padding-block: 48px;
+  }
+}
+
+@media (max-width: 360px) {
+  .availability__months li > span {
+    font-size: 0.7rem;
+  }
+}

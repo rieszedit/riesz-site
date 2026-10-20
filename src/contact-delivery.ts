@@ -35,6 +35,13 @@ const fieldLabels: Record<string, string> = {
   collaborator_participation: '協力者参加 / Collaborator participation',
   collaborator_approval: '事前確認 / Prior confirmation',
   budget_basis: '予算の基準 / Budget basis',
+  service_category: '制作サービス / Service',
+  client_type: 'ご依頼者の区分 / Client type',
+  website_type: 'サイトの種類 / Website type',
+  existing_website_url: '現在のサイト / Current website',
+  website_reference_urls: '参考サイト / Reference websites',
+  website_updates: '公開後の更新 / Updates after launch',
+  website_notes: 'Web制作の補足 / Website notes',
 }
 
 export function createSubmissionId() {
@@ -55,7 +62,9 @@ export function buildSubmission(
     .join('')
     .trim()
     .slice(0, 60)
-  const subject = `[Riesz ${kind === 'business' ? '法人' : '個人'}依頼] ${name} | ${id}`
+  const website = data.get('service_category') === 'website'
+  // Keep the existing prefix so website inquiries match the Gmail intake filter.
+  const subject = `[Riesz ${kind === 'business' ? '法人' : '個人'}依頼] ${website ? 'Webサイト制作 | ' : ''}${name} | ${id}`
   data.set('_subject', subject)
   data.set('submission_id', id)
   data.set('budget_basis', '税別 / Before tax')

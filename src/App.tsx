@@ -48,14 +48,18 @@ import type { Language } from './language-preference'
 import { businessWorks, works } from './portfolio-content'
 import type { WorkItem } from './portfolio-content'
 import { contactEmail } from './contact-delivery'
+import type { ContactKind } from './contact-delivery'
 import { useContactDelivery } from './use-contact-delivery'
 import type { SubmitStatus } from './use-contact-delivery'
 import { ContactChallenge } from './ContactChallenge'
 import { turnstileSiteKey } from './turnstile-config'
 import { PrivacyPage } from './PrivacyPage'
+import { AvailabilityPanel } from './AvailabilityPanel'
+import { WebsitePage } from './WebsitePage'
+import { websiteTypeOptions, websiteUpdateOptions } from './website-form-options'
 
 type Lang = Language
-type Page = 'personal' | 'business' | 'privacy'
+type Page = 'personal' | 'business' | 'privacy' | 'website'
 type WorkContactPreset = {
   title: string
   titleEn: string
@@ -198,6 +202,10 @@ function App() {
         ? lang === 'ja'
           ? 'プライバシー | Riesz'
           : 'Privacy | Riesz'
+        : page === 'website'
+          ? lang === 'ja'
+            ? 'Webサイト制作・お見積もり | Riesz'
+            : 'Website Design & Estimates | Riesz'
         : isBusiness
           ? lang === 'ja'
             ? 'Riesz for Business | MV / Design / Direction'
@@ -245,6 +253,8 @@ function App() {
       <Header lang={lang} setLang={setLang} page={page} />
       {page === 'privacy' ? (
         <PrivacyPage lang={lang} />
+      ) : page === 'website' ? (
+        <WebsitePage lang={lang}><WebsiteContact lang={lang} /></WebsitePage>
       ) : isBusiness ? (
         <BusinessPage lang={lang} />
       ) : (
@@ -289,6 +299,7 @@ function AnalyticsBeacon() {
 function getPage(): Page {
   const root = document.getElementById('root')
   if (root?.dataset.page === 'privacy') return 'privacy'
+  if (root?.dataset.page === 'website') return 'website'
   return root?.dataset.page === 'business' ? 'business' : 'personal'
 }
 
@@ -336,6 +347,13 @@ function Header({
         <a href={page !== 'personal' ? '/#works' : '#works'}>Works</a>
         <a href={page !== 'personal' ? '/#pricing' : '#pricing'}>Pricing</a>
         <a href="/business/">Business</a>
+        <a
+          href="/website/"
+          title={lang === 'ja' ? 'Webサイト制作' : 'Website Design'}
+          aria-current={page === 'website' ? 'page' : undefined}
+        >
+          Web
+        </a>
         <a
           className="contact-pill"
           href={page === 'privacy' ? '/#contact' : '#contact'}
@@ -420,6 +438,7 @@ function BusinessPage({ lang }: { lang: Lang }) {
               ? '企業案件、IP関連映像、VTuber / 音楽プロジェクト、告知映像、ティザー、Short動画など、使用範囲と権利条件を確認したうえで個別にお見積もりします。'
               : 'For corporate projects, IP-related videos, VTuber or music projects, teasers, announcements, and shorts, estimates are prepared individually based on scope, usage, and rights.'}
           </p>
+          <AvailabilityPanel lang={lang} />
         </div>
         <div className="business-panel">
           <h2>{lang === 'ja' ? '別途お見積もり' : 'Custom Estimate'}</h2>
@@ -548,6 +567,7 @@ function Hero({ lang }: { lang: Lang }) {
             ? '歌ってみたMV、オリジナルMV、リリックビデオの制作相談を受け付けています。作品の温度と情報量を両立する映像設計を行います。'
             : 'Music video, cover MV, and lyric video commissions. Riesz designs video direction that balances visual density, rhythm, and emotional tone.'}
         </p>
+        <AvailabilityPanel lang={lang} />
         <div className="hero-actions">
           <a className="primary-button" href="#contact">
             <Send size={16} aria-hidden="true" />
@@ -1498,14 +1518,153 @@ function BusinessContact({ lang }: { lang: Lang }) {
   )
 }
 
+function WebsiteContact({ lang }: { lang: Lang }) {
+  const [kind, setKind] = useState<ContactKind>('personal')
+  const delivery = useContactDelivery(kind)
+  const ja = lang === 'ja'
+
+  return (
+    <section className="contact-section website-contact" id="contact">
+      <div className="contact-intro">
+        <p>Contact</p>
+        <h2>{ja ? 'Web制作のご相談' : 'Discuss Your Website'}</h2>
+        <span>
+          {ja
+            ? '構想段階でも大丈夫です。作りたいサイトとご希望の予算・時期を教えてください。内容を確認して個別にお見積もりします。'
+            : 'Early ideas are welcome. Tell me about the site you have in mind, your budget and timing. I will review the scope and prepare a custom estimate.'}
+        </span>
+        <span>
+          {ja
+            ? '通常3日以内にご返信します。未定の項目は、相談しながら決めていけます。'
+            : 'I usually reply within 3 days. We can work out any undecided details together.'}
+        </span>
+        <a className="direct-mail" href={`mailto:${contactEmail}`}>{contactEmail}</a>
+        <a className="website-contact__mv" href="/#contact">
+          {ja ? '映像制作のご相談はこちら' : 'Looking for music video production?'}
+          <ArrowUpRight size={16} aria-hidden="true" />
+        </a>
+      </div>
+      <form
+        action={formEndpoints[kind]}
+        method="POST"
+        className="contact-form"
+        ref={delivery.formRef}
+        onInput={delivery.onInput}
+        onSubmit={delivery.onSubmit}
+      >
+        <fieldset className="contact-form__body" disabled={delivery.status === 'submitting'}>
+          <input type="hidden" name="service_category" value="website" />
+          <FormSection
+            id="website-contact"
+            number="01"
+            title={ja ? 'ご連絡先' : 'Your details'}
+            subtitle={ja ? '* は必須項目です。' : '* Required fields.'}
+          >
+            <Select
+              lang={lang}
+              label={ja ? 'ご依頼者の区分' : 'Client type'}
+              name="client_type"
+              required
+              value={kind}
+              onValueChange={(value) => setKind(value === 'business' ? 'business' : 'personal')}
+              options={[
+                { value: 'personal', ja: '個人・個人事業主', en: 'Individual / Sole proprietor' },
+                { value: 'business', ja: '法人・企業', en: 'Company / Organization' },
+              ]}
+            />
+            <div className="form-row">
+              <Field label={ja ? 'お名前・担当者名' : 'Name / Contact person'} name="name" required />
+              <Field label={ja ? 'メールアドレス' : 'Email'} name="email" type="email" required />
+            </div>
+            <Field
+              label={ja ? (kind === 'business' ? '会社名' : '屋号・活動名（任意）') : (kind === 'business' ? 'Company' : 'Business / Artist name (optional)')}
+              name="company"
+              required={kind === 'business'}
+            />
+          </FormSection>
+          <FormSection
+            id="website-project"
+            number="02"
+            title={ja ? '作りたいサイトについて' : 'About your website'}
+            subtitle={ja ? '決まっている範囲でご記入ください。' : 'Share what you know so far.'}
+          >
+            <Select
+              lang={lang}
+              label={ja ? 'サイトの種類' : 'Website type'}
+              name="website_type"
+              options={websiteTypeOptions}
+              required
+            />
+            <TextArea
+              label={ja ? 'ご相談内容' : 'Project details'}
+              name="project_summary"
+              required
+              helper={ja
+                ? 'サイトの目的・載せたい内容・必要な機能など。まだ決まっていない場合は、その旨をお知らせください。'
+                : 'The purpose of the site, content and features you need. It is fine to say that these are still undecided.'}
+            />
+            <div className="form-row">
+              <Field
+                label={ja ? 'ご希望の予算（税別・任意）' : 'Budget (before tax, optional)'}
+                name="budget"
+                helper={ja ? '未定・相談したい、でも構いません。' : 'TBD or “need advice” is fine.'}
+              />
+              <Field
+                label={ja ? '公開希望時期（任意）' : 'Target launch date (optional)'}
+                name="release_date"
+              />
+            </div>
+          </FormSection>
+          <details className="form-optional">
+            <summary>{ja ? '参考サイト・更新方法など（任意）' : 'References, updates and other details (optional)'}</summary>
+            <FormSection
+              id="website-details"
+              number="03"
+              title={ja ? '補足情報' : 'Additional details'}
+              subtitle={ja ? '見積もりに必要な詳細は、ご返信後にも確認できます。' : 'We can confirm the details needed for an estimate after your inquiry.'}
+            >
+              <Field label={ja ? '現在のサイトURL' : 'Current website URL'} name="existing_website_url" />
+              <TextArea
+                label={ja ? '参考にしたいサイトのURL' : 'Reference website URLs'}
+                name="website_reference_urls"
+                helper={ja ? '気に入っている点も添えていただけると助かります。' : 'Please mention what you like about each reference.'}
+              />
+              <Select
+                lang={lang}
+                label={ja ? '公開後の更新方法' : 'Updates after launch'}
+                name="website_updates"
+                options={websiteUpdateOptions}
+              />
+              <TextArea
+                label={ja ? '素材・ページ数・契約などの補足' : 'Content, page count, contracts or other notes'}
+                name="website_notes"
+                helper={ja
+                  ? '文章・写真・イラストの準備状況、想定ページ数、ドメインの有無、NDAの希望など。パスワードは送らないでください。'
+                  : 'Available text, photos or artwork, estimated page count, domain ownership or NDA requests. Please do not send passwords.'}
+              />
+            </FormSection>
+          </details>
+          <ContactActions
+            lang={lang}
+            delivery={delivery}
+            submitLabel={ja ? 'Web制作の相談を送る' : 'Send Website Inquiry'}
+          />
+        </fieldset>
+      </form>
+    </section>
+  )
+}
+
 function ContactActions({
   lang,
   delivery,
   business = false,
+  submitLabel,
 }: {
   lang: Lang
   delivery: ReturnType<typeof useContactDelivery>
   business?: boolean
+  submitLabel?: string
 }) {
   const [verified, setVerified] = useState(false)
   const pending = delivery.status === 'submitting'
@@ -1534,13 +1693,13 @@ function ContactActions({
           ? lang === 'ja'
             ? '送信中'
             : 'Sending'
-          : lang === 'ja'
+          : submitLabel ?? (lang === 'ja'
             ? business
               ? '法人案件を相談する'
               : '見積もり相談を送る'
             : business
               ? 'Send Business Inquiry'
-              : 'Send Estimate Request'}
+              : 'Send Estimate Request')}
       </button>
       <ContactSubmitStatus lang={lang} status={delivery.status} />
       {delivery.receipt && (
@@ -1831,6 +1990,7 @@ function Footer({ lang }: { lang: Lang }) {
       <nav aria-label="Footer navigation">
         <a href="/">Home</a>
         <a href="/business/">Business</a>
+        <a href="/website/">{lang === 'ja' ? 'Webサイト制作' : 'Website Design'}</a>
         <a href="/privacy/">{lang === 'ja' ? 'プライバシー' : 'Privacy'}</a>
         <a href={playlistUrl} target="_blank" rel="noreferrer">
           YouTube

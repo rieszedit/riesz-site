@@ -10,6 +10,7 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         business: resolve(__dirname, 'business/index.html'),
         privacy: resolve(__dirname, 'privacy/index.html'),
+        website: resolve(__dirname, 'website/index.html'),
       },
     },
   },

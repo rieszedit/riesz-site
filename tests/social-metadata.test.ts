@@ -44,7 +44,7 @@ test('uses the dedicated 1200 by 630 social card on every public page', () => {
     height: 630,
   })
 
-  for (const relativePath of ['index.html', 'business/index.html']) {
+  for (const relativePath of ['index.html', 'business/index.html', 'website/index.html']) {
     const html = readFileSync(path.join(root, relativePath), 'utf8')
 
     assert.match(html, /https:\/\/riesz\.org\/media\/riesz-social-card\.jpg/)

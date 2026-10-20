@@ -7,6 +7,8 @@
 - Each inquiry carries `submission_id` and a subject containing the existing personal/business prefix, the requester name and a unique reference. Keep these prefixes compatible with the Gmail inquiry-label filter.
 - A positive Formspree response confirms provider acceptance, not inbox placement or that Riesz has read or replied.
 - Timeout or connection failure means receipt is unknown. Do not automatically retry. Keep the reference when checking via email so duplicates can be reconciled.
+- While receipt is unknown, the current page blocks further POSTs and retains the original submission and reference even after edits or client-type changes. Copy/email uses that original record with a receipt-check notice, not the edited draft. No inquiry content is persisted across reloads.
+- Website inquiries use the same personal/business endpoints and subject prefixes, with `Webサイト制作` and `service_category=website` to distinguish the service. Their `message` field contains a readable bilingual summary; canonical field values remain unchanged.
 - The site does not persist inquiry text in browser storage. Failed input remains in the current page; users can copy it or compose an email. Reloading discards unsaved input.
 
 ## Spam protection
@@ -41,6 +43,8 @@ This is an operator checklist, not an automatic monitoring service. No new sched
 The automated release gate runs lint, unit tests and browser tests before the final production build. The browser suite uses mocked delivery; the live verification is separate and must confirm both archive storage and Gmail receipt.
 
 Pre-change restore point: `backup-before-intake-improvements-2026-09-05` (`905fc0b9a1bdf158766de4f3d83400e5fdfe26af`).
+
+Web intake fixes restore point: `backup-before-web-intake-fixes-2026-10-20` (`1e02ca2ad9c4f0992d6588b6add91963040e525e`). This version already includes Turnstile; reverting only this change does not require changing provider CAPTCHA settings.
 
 Before deploying an older frontend that has no Turnstile widget, re-enable Formshield and disable CAPTCHA in BOTH Formspree forms. Otherwise the old site will be blocked by the new server-side CAPTCHA requirement. Coordinate the setting change and rollback; never leave both protections disabled. Restore source with a reviewed revert commit, not a force-push or hard reset.
 

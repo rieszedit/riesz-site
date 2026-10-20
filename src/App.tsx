@@ -344,9 +344,13 @@ function Header({
         Riesz
       </a>
       <nav className="nav-links" aria-label="Primary navigation">
-        <a href={page !== 'personal' ? '/#works' : '#works'}>Works</a>
-        <a href={page !== 'personal' ? '/#pricing' : '#pricing'}>Pricing</a>
-        <a href="/business/">Business</a>
+        <a href={page === 'website' ? '#web-works' : page !== 'personal' ? '/#works' : '#works'}>Works</a>
+        <a href={page === 'website' ? '#web-quote' : page !== 'personal' ? '/#pricing' : '#pricing'}>
+          {page === 'website' ? 'Estimate' : 'Pricing'}
+        </a>
+        <a href={page === 'website' ? '/' : '/business/'}>
+          {page === 'website' ? 'MV' : 'Business'}
+        </a>
         <a
           href="/website/"
           title={lang === 'ja' ? 'Webサイト制作' : 'Website Design'}
@@ -1668,6 +1672,7 @@ function ContactActions({
 }) {
   const [verified, setVerified] = useState(false)
   const pending = delivery.status === 'submitting'
+  const uncertain = delivery.status === 'unknown'
   return (
     <div className="contact-actions">
       <p className="contact-consent">
@@ -1678,12 +1683,17 @@ function ContactActions({
           {lang === 'ja' ? '個人情報の取り扱い' : 'Privacy policy'}
         </a>
       </p>
-      <ContactChallenge
+      {!uncertain && <ContactChallenge
         lang={lang}
         reset={delivery.challengeReset}
         onReady={setVerified}
-      />
-      <button
+      />}
+      {uncertain ? (
+        <a className="primary-button" href={`mailto:${contactEmail}`} onClick={delivery.email}>
+          <Mail size={17} aria-hidden="true" />
+          {lang === 'ja' ? '受付状況をメールで確認' : 'Check receipt by email'}
+        </a>
+      ) : <button
         className="submit-button"
         type="submit"
         disabled={pending || Boolean(turnstileSiteKey && !verified)}
@@ -1700,7 +1710,7 @@ function ContactActions({
             : business
               ? 'Send Business Inquiry'
               : 'Send Estimate Request')}
-      </button>
+      </button>}
       <ContactSubmitStatus lang={lang} status={delivery.status} />
       {delivery.receipt && (
         <p className="receipt-id">
@@ -1716,13 +1726,13 @@ function ContactActions({
               ? 'コピーしました'
               : 'Copied'
             : lang === 'ja'
-              ? '相談内容をコピー'
-              : 'Copy inquiry'}
+              ? uncertain ? '送信時の控えをコピー' : '相談内容をコピー'
+              : uncertain ? 'Copy original submission' : 'Copy inquiry'}
         </button>
-        <a href={`mailto:${contactEmail}`} onClick={delivery.email}>
+        {!uncertain && <a href={`mailto:${contactEmail}`} onClick={delivery.email}>
           <Mail size={16} aria-hidden="true" />
           {lang === 'ja' ? 'メールで送る' : 'Send by email'}
-        </a>
+        </a>}
       </div>
       {delivery.copyState === 'manual' && (
         <label className="field">
@@ -1768,8 +1778,8 @@ function ContactSubmitStatus({
           : `Request received. I will review the details and usually reply within 3 days. If you do not receive a reply within that time, please contact ${contactEmail} directly.`
         : status === 'unknown'
           ? lang === 'ja'
-            ? '通信が中断され、受付結果を確認できませんでした。二重送信を避けるため、下のメールからお問い合わせ番号を添えて受付確認をご依頼ください。入力内容は残っています。'
-            : 'The connection ended before receipt could be confirmed. To avoid duplicates, use the email option below and include your inquiry reference to check receipt. Your input is preserved.'
+            ? '通信が中断され、受付結果を確認できませんでした。二重送信を避けるため、この画面からの再送は停止しています。メールで受付確認をご依頼ください。送信時の内容・お問い合わせ番号が添付されます。入力内容は残っていますが、編集しても再送されません。'
+            : 'The connection ended before receipt could be confirmed. Resending from this page is paused to avoid duplicates. Please check receipt by email; it will include the original details and inquiry reference. Your input is preserved, but edits are not resent.'
           : lang === 'ja'
             ? `送信できませんでした。お手数ですが ${contactEmail} へ直接ご連絡ください。`
             : `Could not send the form. Please contact ${contactEmail} directly.`

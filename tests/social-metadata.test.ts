@@ -37,14 +37,14 @@ function readJpegDimensions(buffer: Buffer) {
   throw new Error('JPEG dimensions were not found')
 }
 
-test('uses the dedicated 1200 by 630 social card on every public page', () => {
+test('uses the dedicated 1200 by 630 MV social card on video commission pages', () => {
   assert.equal(existsSync(socialImagePath), true, 'dedicated social card is missing')
   assert.deepEqual(readJpegDimensions(readFileSync(socialImagePath)), {
     width: 1200,
     height: 630,
   })
 
-  for (const relativePath of ['index.html', 'business/index.html', 'website/index.html']) {
+  for (const relativePath of ['index.html', 'business/index.html']) {
     const html = readFileSync(path.join(root, relativePath), 'utf8')
 
     assert.match(html, /https:\/\/riesz\.org\/media\/riesz-social-card\.jpg/)
@@ -54,4 +54,17 @@ test('uses the dedicated 1200 by 630 social card on every public page', () => {
     assert.match(html, /name="twitter:image:alt"/)
     assert.doesNotMatch(html, /unknown-mother-goose-poster\.jpg/)
   }
+})
+
+test('website commissions use their own 1200 by 630 social card', () => {
+  const image = readFileSync(path.join(root, 'public/media/riesz-website-social-card.jpg'))
+  assert.deepEqual(readJpegDimensions(image), { width: 1200, height: 630 })
+  const html = readFileSync(path.join(root, 'website/index.html'), 'utf8')
+  for (const attribute of ['property="og:image"', 'name="twitter:image"']) {
+    assert.ok(html.includes(`${attribute} content="https://riesz.org/media/riesz-website-social-card.jpg"`))
+  }
+  assert.match(html, /property="og:image:type" content="image\/jpeg"/)
+  assert.match(html, /property="og:image:width" content="1200"/)
+  assert.match(html, /property="og:image:height" content="630"/)
+  assert.doesNotMatch(html, /riesz-social-card\.jpg|MV \/ Design \/ Direction/)
 })

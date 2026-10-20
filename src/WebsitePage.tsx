@@ -176,6 +176,7 @@ export function WebsitePage({
 
       <section
         className="content-section website-section"
+        id="web-quote"
         aria-labelledby="web-quote-title"
       >
         <h2 id="web-quote-title">{text.quote}</h2>

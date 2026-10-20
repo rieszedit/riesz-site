@@ -26,7 +26,7 @@ test('a failed or ambiguous response never clears the inquiry or auto-resends', 
   const receipt = await form.locator('.receipt-id').innerText()
   expect(receipt).toContain('RID-')
   await page.context().grantPermissions(['clipboard-read', 'clipboard-write'])
-  await form.getByRole('button', { name: '相談内容をコピー' }).click()
+  await form.getByRole('button', { name: '送信時の控えをコピー' }).click()
   const copied = await page.evaluate(() => navigator.clipboard.readText())
   expect(copied).toContain('Keep these details on failure.')
   expect(copied).toContain(receipt.split(': ')[1])
@@ -177,9 +177,9 @@ test('corporate errors preserve content and offer an email fallback', async ({
   await expect(form.getByRole('alert')).toBeVisible()
   await expect(form.locator('[name="company"]')).toHaveValue('TEST Company')
   await expect(
-    form.getByRole('button', { name: '相談内容をコピー' }),
+    form.getByRole('button', { name: '送信時の控えをコピー' }),
   ).toBeVisible()
   await expect(
-    form.getByRole('link', { name: 'メールで送る' }),
+    form.getByRole('link', { name: '受付状況をメールで確認' }),
   ).toHaveAttribute('href', /mailto:rieszedit@gmail.com/)
 })

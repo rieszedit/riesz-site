@@ -1,3 +1,6 @@
+import type { LocalizedOption } from './form-options.ts'
+import { websiteTypeOptions, websiteUpdateOptions } from './website-form-options.ts'
+
 export type ContactKind = 'personal' | 'business'
 export const contactEmail = 'rieszedit@gmail.com'
 export const submissionTimeoutMs = 20_000
@@ -44,6 +47,36 @@ const fieldLabels: Record<string, string> = {
   website_notes: 'Web制作の補足 / Website notes',
 }
 
+const websiteSummaryFields = new Set([
+  'service_category',
+  'client_type',
+  'name',
+  'email',
+  'company',
+  'website_type',
+  'project_summary',
+  'budget',
+  'release_date',
+  'existing_website_url',
+  'website_reference_urls',
+  'website_updates',
+  'website_notes',
+  'message',
+  'submission_id',
+])
+
+const websiteFieldOptions: Record<string, LocalizedOption[]> = {
+  service_category: [
+    { value: 'website', ja: 'Webサイト制作', en: 'Website design' },
+  ],
+  client_type: [
+    { value: 'personal', ja: '個人・個人事業主', en: 'Individual / Sole proprietor' },
+    { value: 'business', ja: '法人・企業', en: 'Company / Organization' },
+  ],
+  website_type: websiteTypeOptions,
+  website_updates: websiteUpdateOptions,
+}
+
 export function createSubmissionId() {
   return `RID-${new Date().toISOString().slice(0, 10).replaceAll('-', '')}-${crypto.randomUUID()}`
 }
@@ -77,10 +110,19 @@ export function buildSubmission(
       ([key, value]) =>
         !key.startsWith('_') &&
         key !== 'cf-turnstile-response' &&
+        (!website || websiteSummaryFields.has(key)) &&
         String(value).trim(),
     )
-    .map(([key, value]) => `${fieldLabels[key] ?? key}: ${String(value)}`)
+    .map(([key, value]) => {
+      const option = website
+        ? websiteFieldOptions[key]?.find((option) => option.value === value)
+        : undefined
+      const label = option ? `${option.ja} / ${option.en}` : String(value)
+      return `${fieldLabels[key] ?? key}: ${label}`
+    })
     .join('\n\n')
+  // Build once for both delivery paths; append to preserve any original message.
+  if (website) data.append('message', body)
   return { id, subject, data, body }
 }
 

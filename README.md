@@ -27,6 +27,7 @@ The build outputs:
 
 - `/`
 - `/business/`
+- `/website/`
 - `/privacy/`
 
 ## Formspree Setup
@@ -69,6 +70,13 @@ npm run test:e2e
 ```
 
 Browser tests build a production preview with mocked Formspree endpoints and no live analytics/CAPTCHA. No customer inquiry is sent by this suite. Real delivery through CAPTCHA, Formspree, and Gmail is a separate manual release check.
+
+## Website Social Card
+
+`scripts/website-social-card.html` is the editable 1200 x 630 composition for
+`public/media/riesz-website-social-card.jpg`. Open it through the local Vite server,
+wait for local fonts and both portfolio images, and export the 1200 x 630 canvas
+as JPEG. Keep the MV card unchanged; the website page uses its own metadata.
 
 ## Search Console Setup
 

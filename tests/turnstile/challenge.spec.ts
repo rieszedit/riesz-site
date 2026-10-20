@@ -170,3 +170,41 @@ test('website verification covers the selected business endpoint and prevents du
   await expect(form.getByRole('status')).toContainText('相談を受け付けました')
   await expect(button).toBeDisabled()
 })
+
+test('website verification failure keeps input and unknown receipt cannot be resent after verification', async ({ page }) => {
+  await page.route('https://challenges.cloudflare.com/turnstile/v0/api.js*', route =>
+    route.fulfill({ contentType: 'application/javascript', body: widgetScript }),
+  )
+  let calls = 0
+  await page.route('https://formspree.io/**', async route => {
+    calls++
+    await route.fulfill({ status: 503, body: 'Unavailable' })
+  })
+  await page.goto('/website/#contact')
+  const form = page.locator('form')
+  await form.locator('[name="name"]').fill('Keep contact')
+  await form.locator('[name="email"]').fill('test@example.com')
+  await form.locator('[name="website_type"]').selectOption('portfolio')
+  await form.locator('[name="project_summary"]').fill('Keep project details')
+  await form.locator('.contact-challenge').scrollIntoViewIfNeeded()
+  await expect(form.locator('[name="cf-turnstile-response"]')).toHaveCount(1)
+  await page.evaluate(() => (window as unknown as { testChallenge: { fail(): void } }).testChallenge.fail())
+  await expect(form.getByRole('alert')).toContainText('ボット確認を完了できません')
+  await expect(form.getByRole('button', { name: 'Web制作の相談を送る' })).toBeDisabled()
+  await expect(form.getByRole('link', { name: 'メールで送る' })).toBeVisible()
+  await expect(form.locator('[name="project_summary"]')).toHaveValue('Keep project details')
+  expect(calls).toBe(0)
+  await form.getByRole('button', { name: '確認を再試行' }).click()
+  await expect(form.locator('[name="cf-turnstile-response"]')).toHaveCount(1)
+  await page.evaluate(() => (window as unknown as { testChallenge: { solve(): void } }).testChallenge.solve())
+  await form.getByRole('button', { name: 'Web制作の相談を送る' }).click()
+  await expect(form.getByRole('alert')).toContainText('受付結果を確認できません')
+  const originalId = await form.locator('.receipt-id').innerText()
+  await expect(form.locator('.contact-challenge')).toHaveCount(0)
+  await page.evaluate(() => (window as unknown as { testChallenge: { solve(): void } }).testChallenge.solve())
+  await form.locator('[name="name"]').fill('Edited contact')
+  await form.evaluate((element: HTMLFormElement) => element.requestSubmit())
+  await expect(form.locator('.receipt-id')).toHaveText(originalId)
+  await expect(form.locator('button[type="submit"]')).toHaveCount(0)
+  expect(calls).toBe(1)
+})

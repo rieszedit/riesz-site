@@ -30,6 +30,15 @@ The build outputs:
 - `/website/`
 - `/privacy/`
 
+## Portfolio Curation
+
+`src/portfolio-content.ts` keeps the full MV portfolio and exact credits in `works`.
+`featuredWorkUrls` selects the six homepage representatives in display order; all
+other works remain available in the native disclosure, preserving their order.
+Keep all four Main/Hybrid Standard/Flagship examples represented. The corporate
+selection remains independent through `businessFeatured`. Display labels such as
+`Main Flagship` must not change the canonical tags used for inquiry presets.
+
 ## Formspree Setup
 
 Create two Formspree forms:

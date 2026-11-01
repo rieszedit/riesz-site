@@ -2,6 +2,7 @@ import {
   ArrowUpRight,
   Building2,
   Check,
+  ChevronDown,
   Copy,
   Languages,
   Mail,
@@ -45,7 +46,7 @@ import {
   writeBrowserLanguagePreference,
 } from './language-preference'
 import type { Language } from './language-preference'
-import { businessWorks, works } from './portfolio-content'
+import { additionalWorks, businessWorks, featuredWorks } from './portfolio-content'
 import type { WorkItem } from './portfolio-content'
 import { contactEmail } from './contact-delivery'
 import type { ContactKind } from './contact-delivery'
@@ -617,6 +618,63 @@ function Hero({ lang }: { lang: Lang }) {
   )
 }
 
+function WorkCard({
+  work,
+  lang,
+  onWorkContactSelect,
+}: {
+  work: WorkItem
+  lang: Lang
+  onWorkContactSelect: (preset: WorkContactPreset) => void
+}) {
+  const title = lang === 'ja' ? work.title : work.titleEn
+  const client = lang === 'ja' ? work.client : work.clientEn
+
+  return (
+    <article className="work-card">
+      <a
+        href={work.url}
+        target="_blank"
+        rel="noreferrer"
+        aria-label={lang === 'ja'
+          ? `Watch: ${title} / ${client}（YouTube、新しいタブで開きます）`
+          : `Watch ${title} / ${client} on YouTube (opens in a new tab)`}
+      >
+        <img src={work.image} alt="" loading="lazy" />
+        <span className="work-watch">
+          Watch <ArrowUpRight size={14} aria-hidden="true" />
+        </span>
+      </a>
+      <div className="work-card__body">
+        <h3 className={work.compactTitle ? 'work-title work-title--compact' : 'work-title'}>
+          {title}
+        </h3>
+        <p>{client}</p>
+        <p className="work-role">{work.role}</p>
+        {work.noteJa && (
+          <p className="work-note">{lang === 'ja' ? work.noteJa : work.noteEn}</p>
+        )}
+        <div className="tag-list">
+          {work.tags.map((tag, index) => (
+            <span className={index === 0 ? 'work-scale-tag' : undefined} key={tag}>
+              {tag === 'Flagship' || tag === 'Standard' ? `Main ${tag}` : tag}
+            </span>
+          ))}
+        </div>
+        <a
+          className="work-contact-link"
+          href="#contact"
+          onClick={() => onWorkContactSelect(createWorkContactPreset(work))}
+          aria-label={`${lang === 'ja' ? 'この規模で相談する' : 'Request similar style'}: ${title}`}
+        >
+          {lang === 'ja' ? 'この規模で相談する' : 'Request similar style'}
+          <ArrowUpRight size={14} aria-hidden="true" />
+        </a>
+      </div>
+    </article>
+  )
+}
+
 function WorksSection({
   lang,
   onWorkContactSelect,
@@ -630,70 +688,42 @@ function WorksSection({
         <p>{lang === 'ja' ? 'Selected Works' : 'Selected Works'}</p>
         <h2>{lang === 'ja' ? '制作実績' : 'Works'}</h2>
         <a href={playlistUrl} target="_blank" rel="noreferrer">
-          {lang === 'ja' ? 'すべての制作実績を見る' : 'View all works'}
+          {lang === 'ja' ? 'YouTube再生リストを見る' : 'View YouTube playlist'}
           <ArrowUpRight size={16} aria-hidden="true" />
         </a>
       </div>
       <div className="work-tag-note">
         <p>
           {lang === 'ja'
-            ? 'Flagship / Standard / Hybrid は制作規模の目安であり、固定料金ではありません。'
-            : 'Flagship / Standard / Hybrid indicate production-scale references, not fixed prices.'}
-        </p>
-        <p>
-          {lang === 'ja'
-            ? 'Hybrid は、Rieszが映像制作を担当し、協力クリエイターがリリックなど一部制作に参加する形式です。担当範囲は各作品のクレジットをご確認ください。'
-            : 'Hybrid combines video production by Riesz with contributions such as lyric design or motion by collaborators. See each work’s credits for the individual production roles.'}
+            ? 'MainはRiesz本人、Hybridは協力クリエイターと分担して制作。Standard / Flagshipは制作規模の目安で、固定料金ではありません。担当範囲は各作品に記載しています。'
+            : 'Main is produced by Riesz; Hybrid includes collaborator contributions. Standard / Flagship indicate production scale, not fixed prices. See each work’s credits for individual roles.'}
         </p>
       </div>
-      <div className="work-grid">
-        {works.map((work) => (
-          <article className="work-card" key={work.url}>
-            <a href={work.url} target="_blank" rel="noreferrer">
-              <img src={work.image} alt="" loading="lazy" />
-              <span className="work-watch">
-                Watch <ArrowUpRight size={14} aria-hidden="true" />
-              </span>
-            </a>
-            <div className="work-card__body">
-              <h3
-                className={
-                  work.compactTitle
-                    ? 'work-title work-title--compact'
-                    : 'work-title'
-                }
-              >
-                {lang === 'ja' ? work.title : work.titleEn}
-              </h3>
-              <p>{lang === 'ja' ? work.client : work.clientEn}</p>
-              <p className="work-role">{work.role}</p>
-              {work.noteJa && (
-                <p className="work-note">
-                  {lang === 'ja' ? work.noteJa : work.noteEn}
-                </p>
-              )}
-              <div className="tag-list">
-                {work.tags.map((tag) => (
-                  <span key={tag}>{tag}</span>
-                ))}
-              </div>
-              <a
-                className="work-contact-link"
-                href="#contact"
-                onClick={() =>
-                  onWorkContactSelect(createWorkContactPreset(work))
-                }
-                aria-label={`${
-                  lang === 'ja' ? 'この規模で相談する' : 'Request similar style'
-                }: ${lang === 'ja' ? work.title : work.titleEn}`}
-              >
-                {lang === 'ja' ? 'この規模で相談する' : 'Request similar style'}
-                <ArrowUpRight size={14} aria-hidden="true" />
-              </a>
-            </div>
-          </article>
+      <div className="work-grid work-grid--featured">
+        {featuredWorks.map((work) => (
+          <WorkCard key={work.url} work={work} lang={lang} onWorkContactSelect={onWorkContactSelect} />
         ))}
       </div>
+      {additionalWorks.length > 0 && (
+        <details className="more-works">
+          <summary>
+            <span className="more-works__closed">
+              {lang === 'ja'
+                ? `残り${additionalWorks.length}件の実績を見る`
+                : `View ${additionalWorks.length} more works`}
+            </span>
+            <span className="more-works__open">
+              {lang === 'ja' ? '追加の実績を閉じる' : 'Hide additional works'}
+            </span>
+            <ChevronDown size={18} aria-hidden="true" />
+          </summary>
+          <div className="work-grid work-grid--additional">
+            {additionalWorks.map((work) => (
+              <WorkCard key={work.url} work={work} lang={lang} onWorkContactSelect={onWorkContactSelect} />
+            ))}
+          </div>
+        </details>
+      )}
     </section>
   )
 }

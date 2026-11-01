@@ -268,6 +268,7 @@ test('Eine Kleine selects the approved Main Standard plan without overwriting cl
   await expect(form.locator('[name="preferred_plan"]')).toHaveValue('Riesz Main Flagship')
 
   const eine = page.locator('.work-card').filter({ hasText: 'アイネクライネ' })
+  await page.locator('.more-works > summary').click()
   await eine.locator('.work-contact-link').click()
   await expect(form.locator('[name="preferred_plan"]')).toHaveValue('Riesz Main Standard')
   await expect(form.locator('[name="budget"]')).toHaveValue('15万円〜20万円')
@@ -291,7 +292,7 @@ test('Samsa shows solo credits in both languages and selects Main Flagship', asy
   await expect(card.getByRole('heading')).toHaveText('ザムザ')
   await expect(card).toContainText('慈 / Utsumi')
   await expect(card.locator('.work-role')).toHaveText('Movie: Riesz')
-  await expect(card.locator('.tag-list')).toHaveText('FlagshipCover MV')
+  await expect(card.locator('.tag-list')).toHaveText('Main FlagshipCover MV')
   await expect(card.locator('.work-note')).toHaveCount(0)
 
   const form = page.locator('form.contact-form')
@@ -307,7 +308,7 @@ test('Samsa shows solo credits in both languages and selects Main Flagship', asy
   await expect(card.getByRole('heading')).toHaveText('Samsa')
   await expect(card).toContainText('Utsumi')
   await expect(card.locator('.work-role')).toHaveText('Movie: Riesz')
-  await expect(card.locator('.tag-list')).toHaveText('FlagshipCover MV')
+  await expect(card.locator('.tag-list')).toHaveText('Main FlagshipCover MV')
   await card.locator('.work-contact-link').click()
   await expect(form.locator('[name="preferred_plan"]')).toHaveValue('Riesz Main Flagship')
   await expect(references).toHaveValue('https://example.com/client-reference')

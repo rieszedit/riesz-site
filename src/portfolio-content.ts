@@ -217,3 +217,20 @@ export const works: WorkItem[] = [
 ]
 
 export const businessWorks = works.filter((work) => work.businessFeatured)
+
+// Keep the full portfolio order intact; curate the homepage separately.
+const featuredWorkUrls = [
+  'https://www.youtube.com/watch?v=vIHCFGj_G2E',
+  'https://www.youtube.com/watch?v=nRDHO45n3AM',
+  'https://www.youtube.com/watch?v=GhxUkShq1MU',
+  'https://www.youtube.com/watch?v=QWItOSj0bEU',
+  'https://www.youtube.com/watch?v=_CK1kzr3myE',
+  'https://www.youtube.com/watch?v=u5pwAfnnlKc',
+]
+
+export const featuredWorks = featuredWorkUrls.flatMap((url) =>
+  works.filter((work) => work.url === url),
+)
+export const additionalWorks = works.filter(
+  (work) => !featuredWorkUrls.includes(work.url),
+)

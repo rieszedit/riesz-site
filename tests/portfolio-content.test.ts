@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
-import { businessWorks, works } from '../src/portfolio-content.ts'
+import { additionalWorks, businessWorks, featuredWorks, works } from '../src/portfolio-content.ts'
 
 test('keeps the complete public portfolio in its existing order', () => {
   assert.equal(works.length, 18)
@@ -10,6 +10,26 @@ test('keeps the complete public portfolio in its existing order', () => {
     'メクルメ',
     '紡ぐ時間',
   ])
+})
+
+test('curates six representative works without dropping or duplicating the full portfolio', () => {
+  assert.deepEqual(featuredWorks.map((work) => work.url), [
+    'https://www.youtube.com/watch?v=vIHCFGj_G2E',
+    'https://www.youtube.com/watch?v=nRDHO45n3AM',
+    'https://www.youtube.com/watch?v=GhxUkShq1MU',
+    'https://www.youtube.com/watch?v=QWItOSj0bEU',
+    'https://www.youtube.com/watch?v=_CK1kzr3myE',
+    'https://www.youtube.com/watch?v=u5pwAfnnlKc',
+  ])
+  assert.equal(additionalWorks.length, 12)
+  const selected = new Set(featuredWorks.map((work) => work.url))
+  assert.deepEqual(additionalWorks, works.filter((work) => !selected.has(work.url)))
+  const combined = [...featuredWorks, ...additionalWorks]
+  assert.equal(new Set(combined.map((work) => work.url)).size, works.length)
+  assert.deepEqual(new Set(combined), new Set(works))
+  for (const scale of ['Flagship', 'Standard', 'Hybrid Flagship', 'Hybrid Standard']) {
+    assert.ok(featuredWorks.some((work) => work.tags.includes(scale)))
+  }
 })
 
 test('includes Kurumi Noah Unknown Mother Goose as Riesz Main Standard', () => {

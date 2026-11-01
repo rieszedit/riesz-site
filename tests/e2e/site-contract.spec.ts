@@ -285,6 +285,34 @@ test('Eine Kleine selects the approved Main Standard plan without overwriting cl
   await expect(references).toHaveValue('https://example.com/client-reference')
 })
 
+test('Samsa shows solo credits in both languages and selects Main Flagship', async ({ page }) => {
+  await page.goto('/', { waitUntil: 'domcontentloaded' })
+  const card = page.locator('.work-card').filter({ has: page.locator('a[href="https://www.youtube.com/watch?v=GhxUkShq1MU"]') })
+  await expect(card.getByRole('heading')).toHaveText('ザムザ')
+  await expect(card).toContainText('慈 / Utsumi')
+  await expect(card.locator('.work-role')).toHaveText('Movie: Riesz')
+  await expect(card.locator('.tag-list')).toHaveText('FlagshipCover MV')
+  await expect(card.locator('.work-note')).toHaveCount(0)
+
+  const form = page.locator('form.contact-form')
+  const references = form.locator('[name="client_reference_urls"]')
+  await references.fill('https://example.com/client-reference')
+  await card.locator('.work-contact-link').click()
+  await expect(form.locator('[name="preferred_plan"]')).toHaveValue('Riesz Main Flagship')
+  await expect(form.locator('[name="budget"]')).toHaveValue('25万円以上')
+  await expect(form.locator('[name="riesz_reference_url"]')).toHaveValue('https://www.youtube.com/watch?v=GhxUkShq1MU')
+  await expect(references).toHaveValue('https://example.com/client-reference')
+
+  await page.getByRole('button', { name: /EN/ }).click()
+  await expect(card.getByRole('heading')).toHaveText('Samsa')
+  await expect(card).toContainText('Utsumi')
+  await expect(card.locator('.work-role')).toHaveText('Movie: Riesz')
+  await expect(card.locator('.tag-list')).toHaveText('FlagshipCover MV')
+  await card.locator('.work-contact-link').click()
+  await expect(form.locator('[name="preferred_plan"]')).toHaveValue('Riesz Main Flagship')
+  await expect(references).toHaveValue('https://example.com/client-reference')
+})
+
 test('language changes preserve personal form selections and checkboxes', async ({
   page,
 }) => {

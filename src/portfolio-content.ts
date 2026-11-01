@@ -76,6 +76,16 @@ export const works: WorkItem[] = [
     noteEn: 'Lyric Design: Nanashi / Direction: s!on',
   },
   {
+    title: 'ザムザ',
+    titleEn: 'Samsa',
+    client: '慈 / Utsumi',
+    clientEn: 'Utsumi',
+    role: 'Movie: Riesz',
+    tags: ['Flagship', 'Cover MV'],
+    url: 'https://www.youtube.com/watch?v=GhxUkShq1MU',
+    image: 'https://i.ytimg.com/vi/GhxUkShq1MU/maxresdefault.jpg',
+  },
+  {
     title: '一体いつから',
     titleEn: 'Ittai Itsukara',
     client: '慈 / Utsumi',

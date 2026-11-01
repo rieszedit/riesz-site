@@ -4,7 +4,7 @@ import test from 'node:test'
 import { businessWorks, works } from '../src/portfolio-content.ts'
 
 test('keeps the complete public portfolio in its existing order', () => {
-  assert.equal(works.length, 17)
+  assert.equal(works.length, 18)
   assert.deepEqual(works.slice(0, 3).map((work) => work.title), [
     '神っぽいな',
     'メクルメ',
@@ -84,6 +84,22 @@ test('lists the new cover works without exposing project prices or inventing rol
     assert.ok(!work.businessFeatured)
     assert.doesNotMatch(JSON.stringify(work), /円|JPY|[¥￥]/)
   }
+})
+
+test('lists Samsa as a solo Main Flagship cover beside the existing Utsumi work', () => {
+  const index = works.findIndex((work) => work.url.endsWith('GhxUkShq1MU'))
+  assert.ok(index >= 0)
+  assert.deepEqual(works[index], {
+    title: 'ザムザ',
+    titleEn: 'Samsa',
+    client: '慈 / Utsumi',
+    clientEn: 'Utsumi',
+    role: 'Movie: Riesz',
+    tags: ['Flagship', 'Cover MV'],
+    url: 'https://www.youtube.com/watch?v=GhxUkShq1MU',
+    image: 'https://i.ytimg.com/vi/GhxUkShq1MU/maxresdefault.jpg',
+  })
+  assert.equal(works[index + 1].title, '一体いつから')
 })
 
 test('selects exactly the approved public corporate works', () => {
